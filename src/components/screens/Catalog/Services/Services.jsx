@@ -179,7 +179,7 @@ const Services = () => {
         },
         { label: "Name", key: "name" },
         { label: "Category", key: "category", render: (row) => row.categories?.name || "-" },
-        { label: "Price", key: "price", render: (row) => `$${row.price}` },
+        { label: "Price", key: "price", render: (row) => `₹${row.price}` },
         {
             label: "Actions", key: "actions", render: (row) => (
                 <div style={{ display: 'flex', gap: 10 }}>

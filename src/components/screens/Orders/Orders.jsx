@@ -8,7 +8,7 @@ import {
     Bell,
     Calendar4,
     BoxSeam,
-    CurrencyDollar,
+    CurrencyRupee,
     FileText,
     BagCheck,
     ClockHistory,
@@ -69,25 +69,16 @@ const OrdersScreen = () => {
     };
 
     const stats = {
-        newOrders: orders.length,
-        pending: orders.filter(o => o.status === 'Pending').length,
-        delivered: orders.filter(o => o.status === 'Completed').length,
+        newOrders: orders.filter(o => o.status === 'Booked').length,
+        ongoing: orders.filter(o => ['Confirmed', 'Worker Assigned', 'Worker Reached Location', 'Service Ongoing'].includes(o.status)).length,
+        completed: orders.filter(o => o.status === 'Completed').length,
     };
 
     const getFilteredOrders = () => {
         let result = orders;
 
         if (filter !== "All Orders") {
-            const statusMap = {
-                "Pending Orders": "Pending",
-                "Delivered Orders": "Completed",
-                "Booked Orders": "Ongoing",
-                "Cancelled Orders": "Cancelled"
-            };
-            const targetStatus = statusMap[filter];
-            if (targetStatus) {
-                result = result.filter(o => o.status === targetStatus);
-            }
+            result = result.filter(o => o.status === filter);
         }
 
         if (searchQuery) {
@@ -107,11 +98,11 @@ const OrdersScreen = () => {
         { label: <><FileText /> Order ID</>, key: "id", render: (row) => <strong>#{row.id.toString().slice(0, 6)}</strong> },
         { label: <><Calendar4 /> Ordered Date</>, key: "created_at", render: (row) => row.created_at.split('T')[0] },
         { label: <><BoxSeam /> Product Name</>, key: "product", render: (row) => row.order_items?.[0]?.name || "Service" },
-        { label: <><CurrencyDollar /> Price</>, key: "total_amount", render: (row) => <strong>${row.total_amount}</strong> },
+        { label: <><CurrencyRupee /> Price</>, key: "total_amount", render: (row) => <strong>₹{row.total_amount}</strong> },
         {
             label: "Status", key: "status", render: (row) => (
-                <span className={`${styles.statusBadge} ${styles[row.status?.toLowerCase()]}`}>
-                    {row.status === 'Completed' ? 'Delivered' : row.status}
+                <span className={`${styles.statusBadge} ${styles[row.status?.toLowerCase().replace(/\s+/g, '-')]}`}>
+                    {row.status}
                 </span>
             )
         },
@@ -120,40 +111,37 @@ const OrdersScreen = () => {
     return (
         <div className={styles.ordersWrapper}>
             {/* Header - Keeping it here or extracing to PageHeader component if needed */}
-            <div className={styles.topActions}>
+            {/* <div className={styles.topActions}>
                 <div className={styles.searchBar}>
                     <Search />
                     <input placeholder="Search orders..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                 </div>
-            </div>
+            </div> */}
 
             <div className={styles.statsRow}>
                 <div className={`${styles.statCard} ${styles.blue}`}>
                     <div className={styles.info}>
-                        <span className={styles.label}>New Orders</span>
+                        <span className={styles.label}>Booked</span>
                         <div className={styles.valueRow}>
                             <span className={styles.value}>{stats.newOrders}</span>
-                            <div className={styles.meta}>Impression - 20% <ArrowUpShort /></div>
                         </div>
                     </div>
                     <div className={styles.icon}><BagCheck /></div>
                 </div>
                 <div className={`${styles.statCard} ${styles.purple}`}>
                     <div className={styles.info}>
-                        <span className={styles.label}>Pending Orders</span>
+                        <span className={styles.label}>Ongoing</span>
                         <div className={styles.valueRow}>
-                            <span className={styles.value}>{stats.pending}</span>
-                            <div className={styles.meta}>Impression - 11% <ArrowUpShort /></div>
+                            <span className={styles.value}>{stats.ongoing}</span>
                         </div>
                     </div>
                     <div className={styles.icon}><ClockHistory /></div>
                 </div>
                 <div className={`${styles.statCard} ${styles.orange}`}>
                     <div className={styles.info}>
-                        <span className={styles.label}>Delivered Orders</span>
+                        <span className={styles.label}>Completed</span>
                         <div className={styles.valueRow}>
-                            <span className={styles.value}>{stats.delivered}</span>
-                            <div className={styles.meta}>Impression - 18% <ArrowUpShort /></div>
+                            <span className={styles.value}>{stats.completed}</span>
                         </div>
                     </div>
                     <div className={styles.icon}><Truck /></div>
@@ -164,7 +152,7 @@ const OrdersScreen = () => {
                 <div className={styles.listSection}>
                     <div className={styles.tabsHeader}>
                         <div className={styles.tabs}>
-                            {["All Orders", "Pending Orders", "Delivered Orders", "Booked Orders", "Cancelled Orders"].map(f => (
+                            {["All Orders", "Booked", "Confirmed", "Worker Assigned", "Worker Reached Location", "Service Ongoing", "Completed", "Cancelled"].map(f => (
                                 <button key={f} className={filter === f ? styles.active : ""} onClick={() => setFilter(f)}>
                                     {f}
                                 </button>

@@ -344,19 +344,32 @@
         background-color: currentColor;
     }
 
-    &.pending {
+    &.booked {
+        background: rgba(#F2C94C, 0.1);
+        color: #F2C94C;
+    }
+
+    &.confirmed {
         background: rgba(#56CCF2, 0.1);
         color: #56CCF2;
     }
 
-    &.ongoing,
-    &.processing {
+    &.worker-assigned {
         background: rgba(#BB6BD9, 0.1);
         color: #BB6BD9;
     }
 
-    &.completed,
-    &.delivered {
+    &.worker-reached-location {
+        background: rgba(#2D9CDB, 0.1);
+        color: #2D9CDB;
+    }
+
+    &.service-ongoing {
+        background: rgba(#9B51E0, 0.1);
+        color: #9B51E0;
+    }
+
+    &.completed {
         background: rgba(#27ae60, 0.1);
         color: #27ae60;
     }
@@ -364,11 +377,5 @@
     &.cancelled {
         background: rgba(#eb5757, 0.1);
         color: #eb5757;
-    }
-
-    // "Booked" fallback
-    &.booked {
-        background: rgba(#F2C94C, 0.1);
-        color: #F2C94C;
     }
 }

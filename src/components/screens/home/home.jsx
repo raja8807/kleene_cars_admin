@@ -4,7 +4,7 @@ import StatCard from "@/components/ui/StatCard/StatCard";
 import DataTable from "@/components/ui/DataTable/DataTable";
 import { supabase } from "@/lib/supabaseClient";
 import {
-  CurrencyDollar,
+  CurrencyRupee,
   Cart,
   People,
   ClockHistory
@@ -103,14 +103,14 @@ const HomeScreen = () => {
       )
     },
     { label: "Date", key: "created_at", render: (row) => new Date(row.created_at).toLocaleDateString() },
-    { label: "Total", key: "total_amount", render: (row) => <strong>${row.total_amount}</strong> },
+    { label: "Total", key: "total_amount", render: (row) => <strong>₹{row.total_amount}</strong> },
   ];
 
   return (
     <div className={styles.homeWrapper}>
       {/* Stats Grid */}
       <div className={styles.statsGrid}>
-        <StatCard title="Total Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} icon={<CurrencyDollar />} trend="up" trendValue="12%" />
+        <StatCard title="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={<CurrencyRupee />} trend="up" trendValue="12%" />
         <StatCard title="Total Orders" value={stats.totalOrders} icon={<Cart />} trend="up" trendValue="8%" />
         <StatCard title="Active Users" value={stats.activeUsers} icon={<People />} trend="up" trendValue="5%" />
         <StatCard title="Pending Orders" value={stats.pendingOrders} icon={<ClockHistory />} />
@@ -132,10 +132,10 @@ const HomeScreen = () => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
               <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#888', fontSize: 12 }} tickFormatter={(value) => `$${value}`} dx={-10} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#888', fontSize: 12 }} tickFormatter={(value) => `₹${value}`} dx={-10} />
               <Tooltip
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
-                formatter={(value) => [`$${value}`, 'Revenue']}
+                formatter={(value) => [`₹${value}`, 'Revenue']}
               />
               <Area type="monotone" dataKey="revenue" stroke="#8833ff" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
             </AreaChart>
