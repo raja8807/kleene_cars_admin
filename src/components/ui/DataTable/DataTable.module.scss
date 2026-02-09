@@ -1,0 +1,72 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: $border-radius-sm;
+    border: 1px solid $color_divider;
+    background-color: transparent;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+
+        thead {
+            tr {
+                th {
+                    text-align: left;
+                    padding: 10px 16px;
+                    color: $color_text_tertiary;
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border-bottom: 1px solid $color_divider;
+                }
+            }
+        }
+
+        tbody {
+            tr {
+                transition: $transition-smooth;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: rgba($color_primary, 0.03);
+                }
+
+                td {
+                    padding: 10px 16px;
+                    color: $color_text_secondary;
+                    font-size: 13px;
+                    border-bottom: 1px solid $color_divider;
+                    vertical-align: middle;
+
+                    &:first-child {
+                        color: $color_text_primary;
+                        font-weight: 500;
+                    }
+                }
+
+                &:last-child td {
+                    border-bottom: none;
+                }
+            }
+        }
+    }
+
+    .loading {
+        padding: 40px;
+        @include flexCenter;
+        color: $color_text_tertiary;
+    }
+
+    .empty {
+        padding: 40px;
+        @include flexCenter;
+        color: $color_text_tertiary;
+        font-style: italic;
+    }
+}

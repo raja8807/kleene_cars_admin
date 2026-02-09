@@ -1,0 +1,15 @@
+.LoadingScreen {
+  // background-color: rgba(0, 0, 0, 0.421);
+  position: fixed;
+  width: 100dvw;
+  height: 100dvh;
+  top: 0;
+  left: 0;
+  @include flexCenter;
+  z-index: 10000;
+
+  svg {
+    font-size: 70px;
+    color: #8b1538;
+  }
+}

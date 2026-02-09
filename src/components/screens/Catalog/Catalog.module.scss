@@ -1,0 +1,58 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.catalogWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    padding: $layout-padding;
+    background-color: $color_bg_primary;
+    gap: 16px;
+}
+
+.subHeader {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .tabs {
+        display: flex;
+        gap: 8px;
+        background-color: $color_bg_secondary;
+        padding: 4px;
+        border-radius: $border-radius-sm;
+        border: 1px solid $color_divider;
+
+        button {
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: none;
+            background: none;
+            color: $color_text_secondary;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: $transition-smooth;
+
+            &:hover {
+                color: $color_text_primary;
+                background-color: rgba($color_primary, 0.05);
+            }
+
+            &.active {
+                background-color: $color_primary;
+                color: white;
+                box-shadow: 0 2px 8px rgba($color_primary, 0.2);
+            }
+        }
+    }
+}
+
+.content {
+    flex: 1;
+    overflow-y: hidden; // Content handles scroll
+    display: flex;
+    flex-direction: column;
+}

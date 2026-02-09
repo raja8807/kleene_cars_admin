@@ -1,0 +1,88 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.header {
+    height: $header-height;
+    background-color: $color_bg_secondary;
+    border-bottom: 1px solid $color_divider;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 $layout-padding;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+
+    .title {
+        h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: $color_text_primary;
+            margin: 0;
+        }
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .iconBtn {
+            background: none;
+            border: none;
+            color: $color_text_secondary;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            transition: $transition-smooth;
+            display: flex;
+
+            &:hover {
+                background-color: $color_bg_tertiary;
+                color: $color_text_primary;
+            }
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: $border-radius-sm;
+            transition: $transition-smooth;
+
+            &:hover {
+                background-color: $color_bg_tertiary;
+            }
+
+            .avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background-color: $color_primary;
+                color: white;
+                @include flexCenter;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .info {
+                display: flex;
+                flex-direction: column;
+
+                .name {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: $color_text_primary;
+                }
+
+                .role {
+                    font-size: 11px;
+                    color: $color_text_tertiary;
+                }
+            }
+        }
+    }
+}

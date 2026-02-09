@@ -1,0 +1,24 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.layoutContainer {
+    display: flex;
+    min-height: 100vh;
+    background-color: $color_bg_primary;
+}
+
+.mainWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-left: $sidebar-width;
+    width: calc(100% - $sidebar-width);
+    min-height: 100vh;
+    transition: $transition-smooth;
+}
+
+.content {
+    padding: $layout-padding;
+    flex: 1;
+    color: $color_text_primary;
+    overflow-y: auto;
+}

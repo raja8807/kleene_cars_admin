@@ -1,0 +1,81 @@
+.CustomButton {
+  border: none;
+  padding: 12px 24px;
+  border-radius: $border-radius;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+
+  // Variants
+  &.primary {
+    background: linear-gradient(135deg, $color_primary 0%, darken($color_primary, 10%) 100%);
+    color: $color_text_primary;
+    box-shadow: 0 4px 15px rgba($color_primary, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba($color_primary, 0.5);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.secondary {
+    background: $color_bg_tertiary;
+    color: $color_text_primary;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover:not(:disabled) {
+      background: lighten($color_bg_tertiary, 5%);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.outline {
+    background: transparent;
+    color: $color_text_primary;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover:not(:disabled) {
+      border-color: $color_text_primary;
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &.fullWidth {
+    width: 100%;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  &.submitting {
+    background: $color_accent;
+    color: $color_secondary;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

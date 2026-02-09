@@ -1,0 +1,34 @@
+{
+  "name": "velorix",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 3000 -H 0.0.0.0",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.94.0",
+    "aos": "^2.3.4",
+    "bootstrap": "^5.2.3",
+    "eslint": "8.38.0",
+    "eslint-config-next": "13.3.0",
+    "firebase": "^12.3.0",
+    "fs": "^0.0.1-security",
+    "net": "^1.0.2",
+    "next": "13.3.0",
+    "nprogress": "^0.2.0",
+    "react": "18.2.0",
+    "react-bootstrap": "^2.7.4",
+    "react-bootstrap-icons": "^1.10.3",
+    "react-dom": "18.2.0",
+    "react-loading-skeleton": "^3.3.1",
+    "react-slideshow-image": "^4.3.0",
+    "react-social-media-embed": "^2.3.5",
+    "react-toastify": "^11.0.5",
+    "recharts": "^3.7.0",
+    "sass": "^1.89.1",
+    "uuid": "^10.0.0"
+  }
+}

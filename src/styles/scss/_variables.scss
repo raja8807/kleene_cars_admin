@@ -1,0 +1,40 @@
+// --- LIGHT THEME VARIABLES ---
+
+// Brand Colors
+$color_primary: #6C5DD3; // Purple from image
+$color_secondary: #1B1D21; // Dark text
+$color_accent: #FF754C; // Orange accent
+
+// Backgrounds
+$color_bg_primary: #F9FAFC; // Main page background (very light gray/blue)
+$color_bg_secondary: #FFFFFF; // Cards, Sidebar, Header (White)
+$color_bg_tertiary: #F0F3F6; // Hover states, inputs
+
+// Text
+$color_text_primary: #11142D; // Almost black
+$color_text_secondary: #808191; // Gray text
+$color_text_tertiary: #B2B3BD; // Lighter gray
+
+// State Colors
+$color_success: #4CE364; // Green
+$color_error: #FF754C; // Red/Orange
+$color_warning: #FFCD1A; // Yellow
+$color_info: #56CCF2; // Blue
+
+// Borders & Dividers
+$color_border: #E4E4E4;
+$color_divider: #E4E4E4;
+
+// Spacing & Sizes
+$sidebar-width: 210px; // Reduced from ~240-260
+$header-height: 56px; // Tighter header
+$layout-padding: 20px; // Content area padding
+$border-radius: 12px; // Slightly less rounded for tighter feel
+$border-radius-sm: 8px;
+
+// Shadows
+$box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); // Soft shadow
+$box-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+// Transitions
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

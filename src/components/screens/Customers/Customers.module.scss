@@ -1,0 +1,76 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.customersWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    padding: $layout-padding;
+    background-color: $color_bg_primary;
+    gap: 16px;
+}
+
+.subHeader {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 0px;
+
+    .actions {
+        display: flex;
+        gap: 12px;
+
+        .search {
+            background-color: $color_bg_secondary;
+            border: 1px solid $color_divider;
+            padding: 8px 12px;
+            border-radius: $border-radius-sm;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 260px;
+
+            input {
+                border: none;
+                background: none;
+                outline: none;
+                color: $color_text_primary;
+                font-size: 13px;
+                width: 100%;
+            }
+        }
+    }
+}
+
+.tableSection {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    .tableContainer {
+        flex: 1;
+        overflow-y: auto;
+    }
+}
+
+.roleBadge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    &.admin {
+        background-color: rgba($color_primary, 0.1);
+        color: $color_primary;
+    }
+
+    &.user {
+        background-color: rgba($color_text_secondary, 0.1);
+        color: $color_text_secondary;
+    }
+}

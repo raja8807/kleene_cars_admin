@@ -1,0 +1,374 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.ordersWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    padding: $layout-padding;
+    background-color: $color_bg_primary;
+    gap: 16px;
+}
+
+.topActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 0;
+
+    .searchBar {
+        display: flex;
+        align-items: center;
+        background-color: $color_bg_secondary;
+        border: 1px solid $color_divider;
+        padding: 8px 12px;
+        border-radius: $border-radius-sm;
+        width: 260px;
+        gap: 8px;
+        color: $color_text_tertiary;
+
+        input {
+            background: none;
+            border: none;
+            outline: none;
+            color: $color_text_primary;
+            width: 100%;
+            font-size: 13px;
+
+            &::placeholder {
+                color: $color_text_tertiary;
+            }
+        }
+    }
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    .statCard {
+        background-color: $color_bg_secondary;
+        border-radius: $border-radius-sm;
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid transparent;
+        transition: $transition-smooth;
+
+        &.blue {
+            background-color: rgba(#56CCF2, 0.08);
+
+            .value {
+                color: #56CCF2;
+            }
+
+            .icon {
+                background-color: rgba(#56CCF2, 0.15);
+                color: #56CCF2;
+            }
+        }
+
+        &.purple {
+            background-color: rgba(#BB6BD9, 0.08);
+
+            .value {
+                color: #BB6BD9;
+            }
+
+            .icon {
+                background-color: rgba(#BB6BD9, 0.15);
+                color: #BB6BD9;
+            }
+        }
+
+        &.orange {
+            background-color: rgba(#F2994A, 0.08);
+
+            .value {
+                color: #F2994A;
+            }
+
+            .icon {
+                background-color: rgba(#F2994A, 0.15);
+                color: #F2994A;
+            }
+        }
+
+        .info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .label {
+                color: $color_text_secondary;
+                font-weight: 600;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .valueRow {
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+
+                .value {
+                    font-size: 22px;
+                    font-weight: 700;
+                }
+
+                .meta {
+                    font-size: 11px;
+                    color: $color_text_tertiary;
+                }
+            }
+        }
+
+        .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            @include flexCenter;
+            font-size: 18px;
+        }
+    }
+}
+
+.contentContainer {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: column; // Changed to column for top table layout
+    gap: 0; // Handled by inner spacing
+    background-color: transparent;
+}
+
+.listSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: transparent; // Remove card bg
+    border-radius: 0;
+    border: none;
+    overflow: hidden;
+    transition: $transition-smooth;
+
+    .tabsHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid rgba($color_border, 0.5);
+            width: 100%;
+            padding-bottom: 8px;
+
+            button {
+                background: none;
+                border: none;
+                color: $color_text_secondary;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                padding-bottom: 8px;
+                position: relative;
+                transition: $transition-smooth;
+
+                &:hover {
+                    color: $color_text_primary;
+                }
+
+                &.active {
+                    color: $color_primary;
+
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -9px;
+                        left: 0;
+                        width: 100%;
+                        height: 2px;
+                        background-color: $color_primary;
+                        border-radius: 2px 2px 0 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .tableContainer {
+        flex: 1;
+        overflow-y: auto;
+        background-color: transparent;
+        border: none;
+        padding: 0;
+    }
+}
+
+// Keep details section but make it overlay or slide-over if needed, 
+// for now keeping side-by-side but with conditional width or overlay
+.detailsSection {
+    flex: 0.4;
+    height: 100%;
+    background-color: $color_bg_secondary;
+    border-left: 1px solid $color_divider;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    position: absolute; // Overlay
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 400px;
+    z-index: 100;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    transform: translateX(100%); // Hidden by default? No, creating entry animation separate
+    animation: slideIn 0.3s forwards;
+
+    .closeBtn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba($color_bg_tertiary, 0.5);
+        border: none;
+        color: $color_text_primary;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        @include flexCenter;
+
+        &:hover {
+            background-color: $color_error;
+        }
+    }
+
+    // ... Reuse existing details styles ...
+    .detailsHeader {
+        margin-bottom: 24px;
+
+        h2 {
+            color: $color_text_primary;
+        }
+
+        .meta {
+            color: $color_text_secondary;
+        }
+    }
+
+    .statusControl {
+        margin-bottom: 24px;
+
+        label {
+            color: $color_text_tertiary;
+        }
+
+        select {
+            background: $color_bg_tertiary;
+            color: $color_text_primary;
+            border: 1px solid $color_divider;
+        }
+    }
+
+    .infoGroup {
+        margin-bottom: 24px;
+
+        h3 {
+            color: $color_text_tertiary;
+            border-bottom: 1px solid $color_divider;
+        }
+
+        .row {
+            .label {
+                color: $color_text_secondary;
+            }
+
+            .value {
+                color: $color_text_primary;
+            }
+        }
+    }
+
+    .itemsList {
+        .item {
+            background: $color_bg_tertiary;
+
+            .name {
+                color: $color_text_primary;
+            }
+
+            .type {
+                color: $color_text_tertiary;
+            }
+
+            .price {
+                color: $color_text_primary;
+            }
+        }
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    // Icon placeholder
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+
+    &.pending {
+        background: rgba(#56CCF2, 0.1);
+        color: #56CCF2;
+    }
+
+    &.ongoing,
+    &.processing {
+        background: rgba(#BB6BD9, 0.1);
+        color: #BB6BD9;
+    }
+
+    &.completed,
+    &.delivered {
+        background: rgba(#27ae60, 0.1);
+        color: #27ae60;
+    }
+
+    &.cancelled {
+        background: rgba(#eb5757, 0.1);
+        color: #eb5757;
+    }
+
+    // "Booked" fallback
+    &.booked {
+        background: rgba(#F2C94C, 0.1);
+        color: #F2C94C;
+    }
+}

@@ -1,0 +1,28 @@
+@import "~bootstrap/dist/css/bootstrap.min.css";
+@import "scss/variables"; // Import variables to use them here
+
+body {
+  background-color: $color_bg_primary;
+  color: $color_text_primary;
+  font-family: 'Inter', sans-serif; // Assuming generic sans-serif if font not loaded
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth !important;
+  transition: 0.2s;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}

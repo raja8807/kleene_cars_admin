@@ -1,0 +1,96 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.homeWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 0px;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section {
+    background-color: $color_bg_secondary;
+    border-radius: $border-radius-sm;
+    border: 1px solid $color_divider;
+    padding: 16px;
+    margin-bottom: 0px;
+
+    .sectionHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: $color_text_primary;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button {
+            color: $color_primary;
+            background: none;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .chartContainer {
+        height: 260px;
+        width: 100%;
+        color: $color_text_tertiary;
+    }
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    &.pending {
+        background: rgba($color_warning, 0.15);
+        color: $color_warning;
+    }
+
+    &.ongoing,
+    &.processing {
+        background: rgba($color_primary, 0.15);
+        color: $color_primary;
+    }
+
+    &.completed {
+        background: rgba($color_success, 0.15);
+        color: $color_success;
+    }
+
+    &.cancelled {
+        background: rgba($color_error, 0.15);
+        color: $color_error;
+    }
+}
