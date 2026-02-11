@@ -38,50 +38,24 @@ const HomeScreen = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
 
-      // ... existing fetch logic for stats ...
-      const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
-      const { count: pendingCount } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'Pending');
-      const { count: usersCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
-
-      const { data: revData } = await supabase.from('orders').select('total_amount, created_at').eq('status', 'Completed');
-      let totalRevenue = 0;
-      if (revData) {
-        totalRevenue = revData.reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
-
-        // Process Weekly Data
-        const last7Days = [...Array(7)].map((_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return {
-            date: d.toLocaleDateString('en-US', { weekday: 'short' }),
-            fullDate: d.toISOString().split('T')[0],
-            revenue: 0
-          };
-        }).reverse();
-
-        revData.forEach(order => {
-          const orderDate = order.created_at.split('T')[0];
-          const day = last7Days.find(d => d.fullDate === orderDate);
-          if (day) day.revenue += order.total_amount;
-        });
-        setRevenueData(last7Days);
-      }
-
-      const { data: recentData } = await supabase
-        .from('orders')
-        .select(`id, status, total_amount, created_at, users (full_name)`)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      setStats({
-        totalRevenue,
-        totalOrders: ordersCount || 0,
-        activeUsers: usersCount || 0,
-        pendingOrders: pendingCount || 0
+      const response = await fetch('/api/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
       });
 
-      setRecentOrders(recentData || []);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to load dashboard data');
+      }
+
+      const data = await response.json();
+
+      setStats(data.stats);
+      setRevenueData(data.revenueData);
+      setRecentOrders(data.recentOrders);
 
     } catch (err) {
       console.error("Dashboard fetch error:", err);

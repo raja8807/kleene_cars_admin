@@ -3,10 +3,7 @@ const path = require("path");
 
 const nextConfig = {
   reactStrictMode: false,
-swcMinify: false,
-  experimental: {
-    forceSwcTransforms: false,
-  },
+  swcMinify: true,
   sassOptions: {
     includePaths: [path.join(__dirname, "src/styles/scss")],
     prependData:

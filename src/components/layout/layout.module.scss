@@ -14,6 +14,11 @@
     width: calc(100% - $sidebar-width);
     min-height: 100vh;
     transition: $transition-smooth;
+
+    &.collapsed {
+        margin-left: $sidebar-collapsed-width;
+        width: calc(100% - $sidebar-collapsed-width);
+    }
 }
 
 .content {

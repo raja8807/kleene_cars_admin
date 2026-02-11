@@ -29,11 +29,14 @@ const Products = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('products')
-                .select('*')
-                .order('name');
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/catalog/products', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            const data = await response.json();
             setProducts(data || []);
         } catch (err) {
             toast.error("Failed to fetch products");
@@ -110,33 +113,35 @@ const Products = () => {
                 image: imageUrl
             };
 
-            console.log("Product Payload to DB:", payload);
+            const { data: { session } } = await supabase.auth.getSession();
+            let response;
 
             if (editingProduct) {
-                console.log("Updating product id:", editingProduct.id);
-                const { error } = await supabase
-                    .from('products')
-                    .update(payload)
-                    .eq('id', editingProduct.id);
-
-                if (error) {
-                    console.error("Supabase Update Error:", error);
-                    throw error;
-                }
-                toast.success("Product updated successfully");
+                response = await fetch('/api/catalog/products', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify({ ...payload, id: editingProduct.id })
+                });
             } else {
-                console.log("Inserting new product");
-                const { error } = await supabase
-                    .from('products')
-                    .insert([payload]);
-
-                if (error) {
-                    console.error("Supabase Insert Error:", error);
-                    throw error;
-                }
-                toast.success("Product created successfully");
+                response = await fetch('/api/catalog/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
             }
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save product');
+            }
+
+            toast.success(editingProduct ? "Product updated successfully" : "Product created successfully");
             await fetchProducts();
             handleCloseModal();
 
@@ -151,8 +156,15 @@ const Products = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            const { error } = await supabase.from('products').delete().eq('id', id);
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch(`/api/catalog/products?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to delete');
             toast.success("Product deleted");
             setProducts(prev => prev.filter(p => p.id !== id));
         } catch (err) {

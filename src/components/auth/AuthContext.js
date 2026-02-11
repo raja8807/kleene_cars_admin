@@ -50,21 +50,26 @@ export const AuthProvider = ({ children }) => {
 
     const fetchProfile = async (userId, authUser) => {
         try {
-            const { data: profile, error } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', userId)
-                .single();
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/auth/profile', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
 
-            if (error) {
-                console.warn("Profile fetch warning:", error.message);
-                // Ensure fallback if role column doesn't exist yet (handle gracefully)
+            if (response.ok) {
+                const profile = await response.json();
+                setUser(authUser);
+                setRole(profile?.role || 'customer');
+            } else {
+                console.warn("Profile fetch failed");
+                setUser(authUser);
+                setRole('customer');
             }
-
-            setUser(authUser);
-            setRole(profile?.role || 'customer'); // Default to customer if null
         } catch (err) {
             console.error("Profile fetch error:", err);
+            setUser(authUser);
+            setRole('customer');
         } finally {
             setLoading(false);
         }

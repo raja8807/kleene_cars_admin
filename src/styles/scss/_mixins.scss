@@ -14,3 +14,21 @@
   padding: 20px;
   margin-bottom: 20px;
 }
+
+@mixin buttonPrimary {
+  background-color: $color_primary;
+  color: white;
+  border: none;
+  border-radius: $border-radius-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-smooth;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: darken($color_primary, 5%);
+    box-shadow: 0 4px 12px rgba($color_primary, 0.3);
+  }
+}

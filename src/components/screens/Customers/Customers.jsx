@@ -17,12 +17,20 @@ const CustomersScreen = () => {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const { data: { session } } = await supabase.auth.getSession();
 
-            if (error) throw error;
+            const response = await fetch('/api/customers', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to load customers');
+            }
+
+            const data = await response.json();
             setUsers(data || []);
         } catch (err) {
             console.error(err);

@@ -6,8 +6,8 @@
     top: 0;
     right: 0;
     bottom: 0;
-    width: 450px;
-    background-color: $color_bg_secondary;
+    width: 600px; // Increased width
+    background-color: $color_bg_primary; // Use main bg for better contrast with cards
     box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
     z-index: 2000;
     display: flex;
@@ -27,15 +27,29 @@
 
 .header {
     padding: 24px;
+    background-color: $color_bg_secondary;
     border-bottom: 1px solid $color_divider;
     display: flex;
     justify-content: space-between;
     align-items: center;
 
-    h2 {
-        font-size: 20px;
-        font-weight: 700;
-        color: $color_text_primary;
+    .titleArea {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: $color_text_primary;
+            margin: 0;
+        }
+
+        .orderId {
+            font-size: 13px;
+            color: $color_text_tertiary;
+            font-family: monospace;
+        }
     }
 
     .closeBtn {
@@ -44,9 +58,12 @@
         font-size: 24px;
         color: $color_text_secondary;
         cursor: pointer;
-        @include flexCenter;
         padding: 8px;
         border-radius: 50%;
+        transition: $transition-smooth;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         &:hover {
             background-color: $color_bg_tertiary;
@@ -61,44 +78,149 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 24px;
+}
+
+.statusBanner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: $color_bg_secondary;
+    border-radius: $border-radius;
+    border: 1px solid $color_border;
+
+    .label {
+        font-size: 14px;
+        color: $color_text_secondary;
+        font-weight: 500;
+    }
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    &.booked {
+        background: rgba($color_info, 0.1);
+        color: $color_info;
+    }
+
+    &.confirmed {
+        background: rgba($color_primary, 0.1);
+        color: $color_primary;
+    }
+
+    &.worker_assigned {
+        background: rgba($color_warning, 0.1);
+        color: $color_warning;
+    }
+
+    &.service_ongoing {
+        background: rgba($color_warning, 0.2);
+        color: darken($color_warning, 10%);
+    }
+
+    &.completed {
+        background: rgba($color_success, 0.1);
+        color: $color_success;
+    }
+
+    &.cancelled {
+        background: rgba($color_error, 0.1);
+        color: $color_error;
+    }
 }
 
 .section {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 
     h3 {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
-        color: $color_text_tertiary;
+        color: $color_text_secondary;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .card {
-        background-color: $color_bg_tertiary;
-        border-radius: 12px;
-        padding: 16px;
+        background-color: $color_bg_secondary;
+        border-radius: $border-radius;
+        padding: 20px;
+        border: 1px solid $color_border;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 16px;
 
         .row {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             font-size: 14px;
 
             .label {
                 color: $color_text_secondary;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 120px;
             }
 
             .value {
                 color: $color_text_primary;
                 font-weight: 600;
+                text-align: right;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                justify-content: flex-end;
             }
+        }
+    }
+}
+
+.workerCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        background-color: $color_bg_tertiary;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color_text_secondary;
+        font-size: 20px;
+    }
+
+    .info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .name {
+            font-weight: 700;
+            color: $color_text_primary;
+        }
+
+        .meta {
+            font-size: 13px;
+            color: $color_text_secondary;
+            display: flex;
+            gap: 10px;
         }
     }
 }
@@ -113,82 +235,220 @@
         justify-content: space-between;
         align-items: center;
         padding-bottom: 12px;
-        border-bottom: 1px solid rgba($color_border, 0.5);
+        border-bottom: 1px solid $color_divider;
 
         &:last-child {
             border: none;
+            padding-bottom: 0;
         }
 
-        .info {
+        .itemInfo {
             display: flex;
             flex-direction: column;
 
             .name {
-                color: $color_text_primary;
                 font-weight: 600;
+                color: $color_text_primary;
                 font-size: 14px;
             }
 
             .type {
-                color: $color_text_tertiary;
                 font-size: 12px;
+                color: $color_text_tertiary;
             }
         }
 
         .price {
-            color: $color_primary;
             font-weight: 700;
-            font-size: 15px;
+            color: $color_text_primary;
         }
     }
 }
 
 .footer {
     padding: 24px;
+    background-color: $color_bg_secondary;
     border-top: 1px solid $color_divider;
-    background-color: $color_bg_primary;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 
     .totalRow {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid $color_divider;
 
         span {
             font-size: 16px;
             color: $color_text_secondary;
+            font-weight: 500;
         }
 
         strong {
-            font-size: 22px;
+            font-size: 24px;
             color: $color_primary;
         }
     }
 
-    .statusUpdate {
+    .actions {
         display: flex;
-        flex-direction: column;
-        gap: 8px;
+        gap: 12px;
 
-        label {
-            font-size: 12px;
+        button {
+            flex: 1;
+            padding: 14px;
+            border-radius: $border-radius-sm;
             font-weight: 600;
-            color: $color_text_tertiary;
-        }
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: $transition-smooth;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
 
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid $color_border;
-            background-color: white;
-            color: $color_text_primary;
-            font-weight: 600;
-            outline: none;
-
-            &:focus {
-                border-color: $color_primary;
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
             }
         }
+
+        .acceptBtn {
+            background-color: $color_primary;
+            color: white;
+
+            &:hover {
+                background-color: darken($color_primary, 5%);
+                box-shadow: 0 4px 12px rgba($color_primary, 0.3);
+            }
+        }
+
+        .declineBtn {
+            background-color: rgba($color_error, 0.1);
+            color: $color_error;
+
+            &:hover {
+                background-color: rgba($color_error, 0.2);
+            }
+        }
+
+        .assignBtn {
+            background-color: $color_primary;
+            color: white;
+
+            &:hover {
+                background-color: darken($color_primary, 5%);
+            }
+        }
+
+        .secondaryBtn {
+            background-color: $color_bg_tertiary;
+            color: $color_text_primary;
+
+            &:hover {
+                background-color: darken($color_bg_tertiary, 5%);
+            }
+        }
+    }
+}
+
+// Worker Selection Modal overlay inside the order details or on top
+.workerModalOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2100;
+    display: flex;
+    align-items: flex-end; // Bottom sheet style or center
+    justify-content: center;
+    padding: 20px;
+}
+
+.workerModal {
+    background: $color_bg_secondary;
+    width: 100%;
+    max-height: 80%;
+    border-radius: $border-radius;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+
+    .modalHeader {
+        padding: 16px;
+        border-bottom: 1px solid $color_divider;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+    }
+
+    .workerList {
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .workerItem {
+        padding: 12px;
+        border: 1px solid $color_border;
+        border-radius: $border-radius-sm;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: $transition-smooth;
+
+        &:hover {
+            border-color: $color_primary;
+            background-color: rgba($color_primary, 0.02);
+        }
+
+        .workerInfo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .wName {
+                font-weight: 600;
+                color: $color_text_primary;
+            }
+
+            .wMeta {
+                font-size: 13px;
+                color: $color_text_secondary;
+                margin-top: 2px;
+            }
+        }
+
+        .selectBtn {
+            padding: 6px 12px;
+            background: $color_bg_tertiary;
+            border: none;
+            border-radius: 4px;
+            color: $color_text_primary;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }

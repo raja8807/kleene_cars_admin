@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { AuthGuard } from "@/components/auth/AuthContext";
 import Sidebar from "./Sidebar/Sidebar";
 import Header from "./Header/Header";
@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 
 const Layout = ({ children }) => {
   const router = useRouter();
+  const [collapsed, setCollapsed] = useState(false);
   const isAuthPage = router.pathname === "/login";
 
   if (isAuthPage) {
@@ -16,8 +17,8 @@ const Layout = ({ children }) => {
   return (
     <AuthGuard>
       <div className={styles.layoutContainer}>
-        <Sidebar />
-        <div className={styles.mainWrapper}>
+        <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+        <div className={`${styles.mainWrapper} ${collapsed ? styles.collapsed : ''}`}>
           <Header />
           <main className={styles.content}>
             {children}

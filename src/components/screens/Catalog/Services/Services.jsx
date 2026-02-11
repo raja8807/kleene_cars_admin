@@ -32,11 +32,14 @@ const Services = () => {
     const fetchServices = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('services')
-                .select(`*, categories(name)`)
-                .order('name');
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/catalog/services', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch services');
+            const data = await response.json();
             setServices(data || []);
         } catch (err) {
             toast.error("Failed to fetch services");
@@ -46,8 +49,20 @@ const Services = () => {
     };
 
     const fetchCategories = async () => {
-        const { data } = await supabase.from('categories').select('id, name');
-        setCategories(data || []);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/catalog/categories', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setCategories(data || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch categories", err);
+        }
     };
 
     const handleOpenModal = (service = null) => {
@@ -120,33 +135,35 @@ const Services = () => {
                 image: imageUrl
             };
 
-            console.log("Service Payload to DB:", payload);
+            const { data: { session } } = await supabase.auth.getSession();
+            let response;
 
             if (editingService) {
-                console.log("Updating service id:", editingService.id);
-                const { error } = await supabase
-                    .from('services')
-                    .update(payload)
-                    .eq('id', editingService.id);
-
-                if (error) {
-                    console.error("Supabase Update Error:", error);
-                    throw error;
-                }
-                toast.success("Service updated successfully");
+                response = await fetch('/api/catalog/services', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify({ ...payload, id: editingService.id })
+                });
             } else {
-                console.log("Inserting new service");
-                const { error } = await supabase
-                    .from('services')
-                    .insert([payload]);
-
-                if (error) {
-                    console.error("Supabase Insert Error:", error);
-                    throw error;
-                }
-                toast.success("Service created successfully");
+                response = await fetch('/api/catalog/services', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
             }
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save service');
+            }
+
+            toast.success(editingService ? "Service updated successfully" : "Service created successfully");
             await fetchServices();
             handleCloseModal();
 
@@ -161,8 +178,15 @@ const Services = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            const { error } = await supabase.from('services').delete().eq('id', id);
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch(`/api/catalog/services?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to delete');
             toast.success("Service deleted");
             setServices(prev => prev.filter(s => s.id !== id));
         } catch (err) {

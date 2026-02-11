@@ -39,18 +39,20 @@ const OrdersScreen = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
-                .from('orders')
-                .select(`
-          *,
-          users (full_name, phone),
-          vehicles (brand, model, number, type),
-          addresses (house, street, area, city, pincode),
-          order_items (name, price, item_type)
-        `)
-                .order('created_at', { ascending: false });
+            const { data: { session } } = await supabase.auth.getSession();
 
-            if (error) throw error;
+            const response = await fetch('/api/orders', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to fetch orders');
+            }
+
+            const data = await response.json();
             setOrders(data || []);
         } catch (err) {
             console.error(err);
@@ -60,11 +62,11 @@ const OrdersScreen = () => {
         }
     };
 
-    const handleUpdateStatusLocal = (orderId, newStatus) => {
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    const handleUpdateStatusLocal = (orderId, newStatus, additionalData = {}) => {
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus, ...additionalData } : o));
         // Update selected order if it's the one that changed
         if (selectedOrder?.id === orderId) {
-            setSelectedOrder(prev => ({ ...prev, status: newStatus }));
+            setSelectedOrder(prev => ({ ...prev, status: newStatus, ...additionalData }));
         }
     };
 

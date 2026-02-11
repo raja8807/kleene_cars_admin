@@ -1,0 +1,141 @@
+@import "@/styles/scss/_variables.scss";
+@import "@/styles/scss/_mixins.scss";
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background-color: white;
+    border-radius: $border-radius;
+    width: 500px;
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: $shadow-lg;
+    animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.header {
+    padding: 20px 24px;
+    border-bottom: 1px solid $color_divider;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: $color_text_primary;
+        margin: 0;
+    }
+
+    .closeBtn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 24px;
+        color: $color_text_secondary;
+        display: flex;
+        align-items: center;
+        transition: $transition-smooth;
+
+        &:hover {
+            color: $color_error;
+        }
+    }
+}
+
+.form {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .formGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: $color_text_secondary;
+        }
+
+        input {
+            padding: 12px;
+            border: 1px solid $color_border;
+            border-radius: $border-radius-sm;
+            font-size: 14px;
+            transition: $transition-smooth;
+
+            &:focus {
+                border-color: $color_primary;
+                outline: none;
+            }
+        }
+    }
+
+    .footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 10px;
+
+        button {
+            padding: 10px 20px;
+            border-radius: $border-radius-sm;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: $transition-smooth;
+        }
+
+        .cancelBtn {
+            background-color: $color_bg_tertiary;
+            color: $color_text_secondary;
+
+            &:hover {
+                background-color: darken($color_bg_tertiary, 5%);
+            }
+        }
+
+        .saveBtn {
+            @include buttonPrimary;
+        }
+    }
+}

@@ -24,8 +24,14 @@ const Categories = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase.from('categories').select('*').order('name');
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/catalog/categories', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            const data = await response.json();
             setCategories(data || []);
         } catch (err) {
             toast.error("Failed to fetch categories");
@@ -108,18 +114,33 @@ const Categories = () => {
                 throw new Error("Category name is required");
             }
 
-            const query = editingCategory
-                ? supabase
-                    .from("categories")
-                    .update(payload)
-                    .eq("id", editingCategory.id).select('*')
-                : supabase
-                    .from("categories")
-                    .insert([payload]).select('*');
+            const { data: { session } } = await supabase.auth.getSession();
+            let response;
 
-            const { error, data } = await query;
+            if (editingCategory) {
+                response = await fetch('/api/catalog/categories', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify({ ...payload, id: editingCategory.id })
+                });
+            } else {
+                response = await fetch('/api/catalog/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+            }
 
-            if (error) throw error;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save category');
+            }
 
             toast.success(
                 editingCategory
@@ -141,8 +162,15 @@ const Categories = () => {
         if (!window.confirm("Are you sure? This might affect services linked to this category.")) return;
 
         try {
-            const { error } = await supabase.from('categories').delete().eq('id', id);
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch(`/api/catalog/categories?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to delete');
             toast.success("Category deleted");
             setCategories(prev => prev.filter(c => c.id !== id));
         } catch (err) {

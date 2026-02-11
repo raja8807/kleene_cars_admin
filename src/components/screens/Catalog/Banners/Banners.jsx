@@ -21,8 +21,14 @@ const Banners = () => {
     const fetchBanners = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase.from('banners').select('*').order('created_at', { ascending: false });
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/catalog/banners', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to fetch');
+            const data = await response.json();
             setBanners(data || []);
         } catch (err) {
             toast.error("Failed to fetch banners");
@@ -91,13 +97,19 @@ const Banners = () => {
                 image: imageUrl
             };
 
-            console.log("Inserting banner with payload:", payload);
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch('/api/catalog/banners', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify(payload)
+            });
 
-            const { error } = await supabase.from('banners').insert([payload]);
-
-            if (error) {
-                console.error("Database insert error:", error);
-                throw error;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create banner');
             }
 
             toast.success("Banner created successfully");
@@ -115,8 +127,16 @@ const Banners = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this banner?")) return;
         try {
-            const { error } = await supabase.from('banners').delete().eq('id', id);
-            if (error) throw error;
+            const { data: { session } } = await supabase.auth.getSession();
+            const response = await fetch(`/api/catalog/banners?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to delete');
+
             toast.success("Banner deleted");
             setBanners(prev => prev.filter(b => b.id !== id));
         } catch (err) {

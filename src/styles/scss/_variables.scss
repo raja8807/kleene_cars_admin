@@ -26,7 +26,8 @@ $color_border: #E4E4E4;
 $color_divider: #E4E4E4;
 
 // Spacing & Sizes
-$sidebar-width: 210px; // Reduced from ~240-260
+$sidebar-width: 250px;
+$sidebar-collapsed-width: 80px;
 $header-height: 56px; // Tighter header
 $layout-padding: 20px; // Content area padding
 $border-radius: 12px; // Slightly less rounded for tighter feel
@@ -35,6 +36,10 @@ $border-radius-sm: 8px;
 // Shadows
 $box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); // Soft shadow
 $box-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 8px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.12);
 
 // Transitions
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
