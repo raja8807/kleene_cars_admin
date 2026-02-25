@@ -3,6 +3,7 @@ import styles from "./home.module.scss";
 import StatCard from "@/components/ui/StatCard/StatCard";
 import DataTable from "@/components/ui/DataTable/DataTable";
 import { supabase } from "@/lib/supabaseClient";
+import dashboardService from "@/services/dashboardService";
 import {
   CurrencyRupee,
   Cart,
@@ -38,24 +39,17 @@ const HomeScreen = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const data = await dashboardService.getStats();
+      // const response = await fetch... // Removed
 
-      const response = await fetch('/api/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`
-        }
+      setStats({
+        totalOrders: data.totalOrders || 0,
+        pendingOrders: data.pendingOrders || 0,
+        activeUsers: data.activeUsers || 0,
+        totalRevenue: data.totalRevenue || 0
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to load dashboard data');
-      }
-
-      const data = await response.json();
-
-      setStats(data.stats);
-      setRevenueData(data.revenueData);
-      setRecentOrders(data.recentOrders);
+      setRevenueData(data.revenueData || []);
+      setRecentOrders(data.recentOrders || []);
 
     } catch (err) {
       console.error("Dashboard fetch error:", err);

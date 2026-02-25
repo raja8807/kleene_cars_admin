@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import authService from '@/services/authService';
 import { useRouter } from "next/router";
+import LoadingScreen from "../ui/loading_screen/loading_screen";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [session, setSession] = useState(null);
     const [role, setRole] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -29,14 +32,18 @@ export const AuthProvider = ({ children }) => {
 
         // Listen for changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            if (session?.access_token) {
+                localStorage.setItem('access_token', session.access_token);
+            } else {
+                localStorage.removeItem('access_token');
+            }
+
+            setSession(session || null);
             if (session?.user) {
                 // Only fetch if user changed or role not set
                 if (session.user.id !== user?.id) {
                     await fetchProfile(session.user.id, session.user);
                 }
-
-                console.log(session);
-
 
             } else {
                 setUser(null);
@@ -50,17 +57,12 @@ export const AuthProvider = ({ children }) => {
 
     const fetchProfile = async (userId, authUser) => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/auth/profile', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-
-            if (response.ok) {
-                const profile = await response.json();
-                setUser(authUser);
-                setRole(profile?.role || 'customer');
+            // const { data: { session } } = await supabase.auth.getSession(); // This line might be removed if authService handles tokens
+            const profile = await authService.getProfile();
+            // Adapt if needed, assuming service returns data directly
+            if (profile) {
+                setRole(profile.role || 'customer'); // Assuming profile object has a 'role' property
+                setUser(authUser); // Keep authUser as the primary user object from Supabase
             } else {
                 console.warn("Profile fetch failed");
                 setUser(authUser);
@@ -95,6 +97,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin: role === 'admin',
         signIn,
         signOut,
+        session
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -119,14 +122,14 @@ export const AuthGuard = ({ children }) => {
     }, [user, role, loading, router]);
 
     if (loading) {
-        return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }}>Loading...</div>;
+        return <LoadingScreen />;
     }
 
     if (!user || role !== 'admin') {
         // If redirect hasn't happened yet (useEffect lag), show nothing or denied msg
         if (!user) return null;
         return (
-            <div style={{ padding: 40, color: 'white', textAlign: 'center' }}>
+            <div style={{ padding: 40, textAlign: 'center' }}>
                 <h1>Access Denied</h1>
                 <p>You do not have permission to view this page.</p>
                 <button onClick={() => supabase.auth.signOut().then(() => router.push('/login'))} style={{ marginTop: 20, padding: '10px 20px' }}>

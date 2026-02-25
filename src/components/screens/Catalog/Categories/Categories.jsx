@@ -5,6 +5,7 @@ import CustomModal from "@/components/ui/custom_modal/custom_modal";
 import CustomInput from "@/components/ui/custom_input/custom_input";
 import { supabase } from "@/lib/supabaseClient";
 import { Plus, PencilSquare, Trash, CloudUpload } from "react-bootstrap-icons";
+import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
 
 const Categories = () => {
@@ -24,14 +25,7 @@ const Categories = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/catalog/categories', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch');
-            const data = await response.json();
+            const data = await catalogService.getCategories();
             setCategories(data || []);
         } catch (err) {
             toast.error("Failed to fetch categories");
@@ -78,7 +72,7 @@ const Categories = () => {
 
         if (uploadError) {
             console.error("Category storage error:", uploadError);
-            throw new Error(`Upload failed: ${uploadError.message}`);
+            throw new Error(`Upload failed: ${uploadError.message} `);
         }
 
         const { data: urlData } = supabase.storage.from('catalog').getPublicUrl(filePath);
@@ -114,33 +108,15 @@ const Categories = () => {
                 throw new Error("Category name is required");
             }
 
-            const { data: { session } } = await supabase.auth.getSession();
-            let response;
+
+            let result;
 
             if (editingCategory) {
-                response = await fetch('/api/catalog/categories', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify({ ...payload, id: editingCategory.id })
-                });
+                result = await catalogService.updateCategory({ ...payload, id: editingCategory.id });
             } else {
-                response = await fetch('/api/catalog/categories', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify(payload)
-                });
+                result = await catalogService.createCategory(payload);
             }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to save category');
-            }
 
             toast.success(
                 editingCategory
@@ -162,15 +138,7 @@ const Categories = () => {
         if (!window.confirm("Are you sure? This might affect services linked to this category.")) return;
 
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch(`/api/catalog/categories?id=${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Failed to delete');
+            await catalogService.deleteCategory(id);
             toast.success("Category deleted");
             setCategories(prev => prev.filter(c => c.id !== id));
         } catch (err) {
@@ -191,10 +159,10 @@ const Categories = () => {
         {
             label: "Actions", key: "actions", render: (row) => (
                 <div style={{ display: 'flex', gap: 10 }}>
-                    <button className={`${styles.actionBtn} ${styles.edit}`} onClick={(e) => { e.stopPropagation(); handleOpenModal(row); }}>
+                    <button className={`${styles.actionBtn} ${styles.edit} `} onClick={(e) => { e.stopPropagation(); handleOpenModal(row); }}>
                         <PencilSquare />
                     </button>
-                    <button className={`${styles.actionBtn} ${styles.delete}`} onClick={(e) => { e.stopPropagation(); handleDelete(row.id); }}>
+                    <button className={`${styles.actionBtn} ${styles.delete} `} onClick={(e) => { e.stopPropagation(); handleDelete(row.id); }}>
                         <Trash />
                     </button>
                 </div>

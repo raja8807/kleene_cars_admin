@@ -3,7 +3,8 @@ import styles from "./Banners.module.scss";
 import CustomModal from "@/components/ui/custom_modal/custom_modal";
 import CustomInput from "@/components/ui/custom_input/custom_input";
 import { supabase } from "@/lib/supabaseClient";
-import { Plus, Trash, CloudUpload } from "react-bootstrap-icons";
+import { Plus, Trash, Image as ImageIcon, CloudUpload } from "react-bootstrap-icons";
+import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
 
 const Banners = () => {
@@ -21,14 +22,7 @@ const Banners = () => {
     const fetchBanners = async () => {
         try {
             setLoading(true);
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/catalog/banners', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch');
-            const data = await response.json();
+            const data = await catalogService.getBanners();
             setBanners(data || []);
         } catch (err) {
             toast.error("Failed to fetch banners");
@@ -64,7 +58,7 @@ const Banners = () => {
 
         if (uploadError) {
             console.error("Storage upload error:", uploadError);
-            throw new Error(`Upload failed: ${uploadError.message}`);
+            throw new Error(`Upload failed: ${uploadError.message} `);
         }
 
         console.log("Upload success:", uploadData);
@@ -97,20 +91,11 @@ const Banners = () => {
                 image: imageUrl
             };
 
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/catalog/banners', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
-                },
-                body: JSON.stringify(payload)
+            const newBanner = await catalogService.createBanner({
+                title: formData.title,
+                image_url: imageUrl, // Changed publicUrl to imageUrl
+                link: formData.link
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create banner');
-            }
 
             toast.success("Banner created successfully");
             await fetchBanners();
@@ -118,7 +103,7 @@ const Banners = () => {
 
         } catch (err) {
             console.error("Submission failed:", err);
-            toast.error(`Error: ${err.message || "Operation failed"}`);
+            toast.error(`Error: ${err.message || "Operation failed"} `);
         } finally {
             setUploading(false);
         }
@@ -127,15 +112,8 @@ const Banners = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this banner?")) return;
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch(`/api/catalog/banners?id=${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
+            await catalogService.deleteBanner(id);
 
-            if (!response.ok) throw new Error('Failed to delete');
 
             toast.success("Banner deleted");
             setBanners(prev => prev.filter(b => b.id !== id));

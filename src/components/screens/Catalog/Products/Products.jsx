@@ -4,7 +4,8 @@ import DataTable from "@/components/ui/DataTable/DataTable";
 import CustomModal from "@/components/ui/custom_modal/custom_modal";
 import CustomInput from "@/components/ui/custom_input/custom_input";
 import { supabase } from "@/lib/supabaseClient";
-import { Plus, PencilSquare, Trash, CloudUpload } from "react-bootstrap-icons";
+import { Search, Plus, Pencil, Trash, CloudUpload, PencilSquare } from "react-bootstrap-icons";
+import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
 
 const Products = () => {
@@ -29,14 +30,7 @@ const Products = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/catalog/products', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch');
-            const data = await response.json();
+            const data = await catalogService.getProducts();
             setProducts(data || []);
         } catch (err) {
             toast.error("Failed to fetch products");
@@ -113,33 +107,16 @@ const Products = () => {
                 image: imageUrl
             };
 
-            const { data: { session } } = await supabase.auth.getSession();
-            let response;
+            // const { data: { session } } = await supabase.auth.getSession(); // Not needed for catalogService
+            let result;
 
             if (editingProduct) {
-                response = await fetch('/api/catalog/products', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify({ ...payload, id: editingProduct.id })
-                });
+                result = await catalogService.updateProduct({ ...payload, id: editingProduct.id });
             } else {
-                response = await fetch('/api/catalog/products', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify(payload)
-                });
+                result = await catalogService.createProduct(payload);
             }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to save product');
-            }
+
 
             toast.success(editingProduct ? "Product updated successfully" : "Product created successfully");
             await fetchProducts();
@@ -156,15 +133,7 @@ const Products = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch(`/api/catalog/products?id=${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Failed to delete');
+            await catalogService.deleteProduct(id);
             toast.success("Product deleted");
             setProducts(prev => prev.filter(p => p.id !== id));
         } catch (err) {

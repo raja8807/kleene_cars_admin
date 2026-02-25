@@ -3,6 +3,7 @@ import styles from "./WorkerModal.module.scss";
 import { X } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import { useAuth } from "@/components/auth/AuthContext";
+import workerService from "@/services/workerService";
 
 const WorkerModal = ({ worker, onClose, onSave }) => {
     const [formData, setFormData] = useState({
@@ -41,20 +42,7 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
             // Create Mode via API
             try {
                 setLoading(true);
-                const response = await fetch('/api/admin/create-worker', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || "Failed to create worker");
-                }
-
+                const data = await workerService.createWorker(formData);
                 toast.success("Worker created successfully");
                 onSave(data); // Pass back success or the new worker data if needed
                 onClose();

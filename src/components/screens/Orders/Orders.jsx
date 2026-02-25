@@ -16,6 +16,7 @@ import {
     ArrowUpShort
 } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
+import orderService from "@/services/orderService";
 
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -33,26 +34,16 @@ const OrdersScreen = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
+        console.log(1);
         fetchOrders();
     }, []);
 
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const { data: { session } } = await supabase.auth.getSession();
-
-            const response = await fetch('/api/orders', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to fetch orders');
-            }
-
-            const data = await response.json();
+            console.log(2);
+            const data = await orderService.getAllOrders();
+            console.log(5);
             setOrders(data || []);
         } catch (err) {
             console.error(err);

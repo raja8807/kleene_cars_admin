@@ -4,7 +4,8 @@ import DataTable from "@/components/ui/DataTable/DataTable";
 import CustomModal from "@/components/ui/custom_modal/custom_modal";
 import CustomInput from "@/components/ui/custom_input/custom_input";
 import { supabase } from "@/lib/supabaseClient";
-import { Plus, PencilSquare, Trash, CloudUpload } from "react-bootstrap-icons";
+import { Search, Plus, Pencil, Trash, CloudUpload, PencilSquare } from "react-bootstrap-icons";
+import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
 
 const Services = () => {
@@ -33,13 +34,7 @@ const Services = () => {
         try {
             setLoading(true);
             const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/catalog/services', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-            if (!response.ok) throw new Error('Failed to fetch services');
-            const data = await response.json();
+            const data = await catalogService.getServices();
             setServices(data || []);
         } catch (err) {
             toast.error("Failed to fetch services");
@@ -50,16 +45,8 @@ const Services = () => {
 
     const fetchCategories = async () => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch('/api/catalog/categories', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setCategories(data || []);
-            }
+            const data = await catalogService.getCategories();
+            setCategories(data || []);
         } catch (err) {
             console.error("Failed to fetch categories", err);
         }
@@ -101,7 +88,7 @@ const Services = () => {
 
         if (uploadError) {
             console.error("Service storage error:", uploadError);
-            throw new Error(`Upload failed: ${uploadError.message}`);
+            throw new Error(`Upload failed: ${uploadError.message} `);
         }
 
         const { data: urlData } = supabase.storage.from('catalog').getPublicUrl(filePath);
@@ -135,33 +122,14 @@ const Services = () => {
                 image: imageUrl
             };
 
-            const { data: { session } } = await supabase.auth.getSession();
-            let response;
+            let result;
 
             if (editingService) {
-                response = await fetch('/api/catalog/services', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify({ ...payload, id: editingService.id })
-                });
+                result = await catalogService.updateService({ ...payload, id: editingService.id });
             } else {
-                response = await fetch('/api/catalog/services', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify(payload)
-                });
+                result = await catalogService.createService(payload);
             }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to save service');
-            }
 
             toast.success(editingService ? "Service updated successfully" : "Service created successfully");
             await fetchServices();
@@ -169,7 +137,7 @@ const Services = () => {
 
         } catch (err) {
             console.error("Service submission failed:", err);
-            toast.error(`Error: ${err.message || 'Operation failed'}`);
+            toast.error(`Error: ${err.message || 'Operation failed'} `);
         } finally {
             setUploading(false);
         }
@@ -178,15 +146,7 @@ const Services = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const response = await fetch(`/api/catalog/services?id=${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Failed to delete');
+            await catalogService.deleteService(id);
             toast.success("Service deleted");
             setServices(prev => prev.filter(s => s.id !== id));
         } catch (err) {
@@ -203,14 +163,14 @@ const Services = () => {
         },
         { label: "Name", key: "name" },
         { label: "Category", key: "category", render: (row) => row.categories?.name || "-" },
-        { label: "Price", key: "price", render: (row) => `₹${row.price}` },
+        { label: "Price", key: "price", render: (row) => `₹${row.price} ` },
         {
             label: "Actions", key: "actions", render: (row) => (
                 <div style={{ display: 'flex', gap: 10 }}>
-                    <button className={`${styles.actionBtn} ${styles.edit}`} onClick={() => handleOpenModal(row)}>
+                    <button className={`${styles.actionBtn} ${styles.edit} `} onClick={() => handleOpenModal(row)}>
                         <PencilSquare />
                     </button>
-                    <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(row.id)}>
+                    <button className={`${styles.actionBtn} ${styles.delete} `} onClick={() => handleDelete(row.id)}>
                         <Trash />
                     </button>
                 </div>

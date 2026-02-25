@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./Customers.module.scss";
 import DataTable from "@/components/ui/DataTable/DataTable";
 import { supabase } from "@/lib/supabaseClient";
+import customerService from "@/services/customerService";
 import { Search } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 
@@ -19,18 +20,9 @@ const CustomersScreen = () => {
             setLoading(true);
             const { data: { session } } = await supabase.auth.getSession();
 
-            const response = await fetch('/api/customers', {
-                headers: {
-                    'Authorization': `Bearer ${session?.access_token}`
-                }
-            });
+            // Replaced fetch with customerService.getAllCustomers
+            const data = await customerService.getAllCustomers(session.access_token);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to load customers');
-            }
-
-            const data = await response.json();
             setUsers(data || []);
         } catch (err) {
             console.error(err);

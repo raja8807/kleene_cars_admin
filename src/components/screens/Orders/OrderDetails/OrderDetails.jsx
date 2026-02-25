@@ -6,6 +6,8 @@ import {
 } from "react-bootstrap-icons";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "react-toastify";
+import orderService from "@/services/orderService";
+import workerService from "@/services/workerService";
 
 const OrderDetails = ({ order, onClose, onUpdate }) => {
     const [updating, setUpdating] = useState(false);
@@ -22,11 +24,8 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     const fetchWorkers = async () => {
         try {
             setLoadingWorkers(true);
-            const response = await fetch('/api/workers');
-            if (response.ok) {
-                const data = await response.json();
-                setWorkers(data || []);
-            }
+            const data = await workerService.getAllWorkers();
+            setWorkers(data || []);
         } catch (error) {
             console.error("Failed to fetch workers", error);
         } finally {
@@ -50,19 +49,8 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
 
             const payload = { status: newStatus, ...additionalData };
 
-            const response = await fetch(`/api/orders/${order.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session?.access_token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update status');
-            }
+            await orderService.updateOrder(order.id, payload);
+            // const response = await fetch... // Removed
 
             toast.success(`Order Updated`);
             // Merge local update for immediate UI reflection

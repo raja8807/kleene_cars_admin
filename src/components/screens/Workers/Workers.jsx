@@ -2,11 +2,17 @@ import React, { useState, useEffect } from "react";
 import styles from "./Workers.module.scss";
 import DataTable from "@/components/ui/DataTable/DataTable";
 import WorkerModal from "./WorkerModal/WorkerModal";
+import dynamic from 'next/dynamic';
 import {
     Search, Plus, Pencil, Trash,
-    PersonVideo3, PersonCheck, PersonDash
+    PersonVideo3, PersonCheck, PersonDash, GeoAlt
 } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
+import workerService from "@/services/workerService";
+
+const WorkerMapModal = dynamic(() => import("./WorkerMapModal/WorkerMapModal"), {
+    ssr: false,
+});
 
 const WorkersScreen = () => {
     const [workers, setWorkers] = useState([]);
@@ -15,6 +21,7 @@ const WorkersScreen = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingWorker, setEditingWorker] = useState(null);
+    const [trackingWorker, setTrackingWorker] = useState(null);
 
     useEffect(() => {
         fetchWorkers();
@@ -23,9 +30,7 @@ const WorkersScreen = () => {
     const fetchWorkers = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/workers');
-            if (!response.ok) throw new Error("Failed to fetch workers");
-            const data = await response.json();
+            const data = await workerService.getAllWorkers();
             setWorkers(data || []);
         } catch (error) {
             console.error(error);
@@ -136,6 +141,17 @@ const WorkersScreen = () => {
         {
             label: "Actions", key: "actions", render: (row) => (
                 <div className={styles.actions}>
+                    <button
+                        className={styles.edit}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setTrackingWorker(row);
+                        }}
+                        title="Track Location"
+                        style={{ marginRight: 8, backgroundColor: '#eef2ff', color: '#4f46e5' }}
+                    >
+                        <GeoAlt />
+                    </button>
                     <button className={styles.edit} onClick={(e) => { e.stopPropagation(); handleEdit(row); }} title="Edit">
                         <Pencil />
                     </button>
@@ -216,6 +232,13 @@ const WorkersScreen = () => {
                     worker={editingWorker}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleSaveWorker}
+                />
+            )}
+
+            {trackingWorker && (
+                <WorkerMapModal
+                    worker={trackingWorker}
+                    onClose={() => setTrackingWorker(null)}
                 />
             )}
         </div>
