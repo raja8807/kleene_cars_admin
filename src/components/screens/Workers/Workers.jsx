@@ -58,6 +58,11 @@ const WorkersScreen = () => {
         setIsModalOpen(true);
     };
 
+    const handleRowClick = (worker) => {
+        setEditingWorker(worker);
+        setIsModalOpen(true);
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this worker?")) {
             // Ideally call API to delete
@@ -113,7 +118,7 @@ const WorkersScreen = () => {
     };
 
     const columns = [
-        { label: "Worker ID", key: "id", render: (row) => <strong>#{row.id}</strong> },
+        { label: "Worker ID", key: "worker_id", render: (row) => <strong>#{row.worker_id || row.id.slice(0, 8)}</strong> },
         {
             label: "Name", key: "name", render: (row) => (
                 <div>
@@ -222,6 +227,7 @@ const WorkersScreen = () => {
                         columns={columns}
                         data={getFilteredWorkers()}
                         loading={loading}
+                        onRowClick={handleRowClick}
                     />
                 </div>
             </div>

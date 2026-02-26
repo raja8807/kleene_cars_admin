@@ -28,7 +28,6 @@ const HomeScreen = () => {
     activeUsers: 0,
     pendingOrders: 0
   });
-  const [recentOrders, setRecentOrders] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +48,6 @@ const HomeScreen = () => {
         totalRevenue: data.totalRevenue || 0
       });
       setRevenueData(data.revenueData || []);
-      setRecentOrders(data.recentOrders || []);
 
     } catch (err) {
       console.error("Dashboard fetch error:", err);
@@ -58,21 +56,6 @@ const HomeScreen = () => {
     }
   };
 
-  const columns = [
-    { label: "Order ID", key: "id", render: (row) => `#${row.id.toString().slice(0, 8)}` },
-    { label: "Customer", key: "customer", render: (row) => row.users?.full_name || "Unknown" },
-    {
-      label: "Status",
-      key: "status",
-      render: (row) => (
-        <span className={`${styles.statusBadge} ${styles[row.status?.toLowerCase()]}`}>
-          {row.status}
-        </span>
-      )
-    },
-    { label: "Date", key: "created_at", render: (row) => new Date(row.created_at).toLocaleDateString() },
-    { label: "Total", key: "total_amount", render: (row) => <strong>₹{row.total_amount}</strong> },
-  ];
 
   return (
     <div className={styles.homeWrapper}>
@@ -111,18 +94,6 @@ const HomeScreen = () => {
         </div>
       </div>
 
-      {/* Recent Orders Section */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2>Recent Orders</h2>
-          <button onClick={() => { /* Navigate to /orders */ }}>View All</button>
-        </div>
-        <DataTable
-          columns={columns}
-          data={recentOrders}
-          loading={loading}
-        />
-      </div>
     </div>
   );
 };

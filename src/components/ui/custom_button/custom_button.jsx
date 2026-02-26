@@ -12,20 +12,19 @@ const CustomButton = ({
   className = "",
   href = "",
 }) => {
-
   if (href) {
-    return <Link
-      href={href}
-    >
-      <button
-        type={type}
-        disabled={disabled}
-        onClick={onClick}
-        className={`${styles.CustomButton} ${styles[variant]} ${fullWidth ? styles.fullWidth : ""} ${className}`}
-      >
-        {children}
-      </button>
-    </Link>
+    return (
+      <Link href={href}>
+        <button
+          type={type}
+          disabled={disabled}
+          onClick={onClick}
+          className={`${styles.CustomButton} ${styles[variant]} ${fullWidth ? styles.fullWidth : ""} ${className}`}
+        >
+          {children}
+        </button>
+      </Link>
+    );
   }
 
   return (

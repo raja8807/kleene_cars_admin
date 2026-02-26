@@ -1,7 +1,7 @@
-import React from "react";
 import styles from "./DataTable.module.scss";
+import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 
-const DataTable = ({ columns, data, loading, onRowClick }) => {
+const DataTable = ({ columns, data, loading, onRowClick, currentPage, totalPages, onPageChange }) => {
     if (loading) {
         return (
             <div className={styles.tableWrapper}>
@@ -40,6 +40,30 @@ const DataTable = ({ columns, data, loading, onRowClick }) => {
                     ))}
                 </tbody>
             </table>
+
+            {totalPages > 1 && (
+                <div className={styles.pagination}>
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => onPageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        <ChevronLeft size={14} /> Previous
+                    </button>
+
+                    <div className={styles.pageInfo}>
+                        Page <span>{currentPage}</span> of <span>{totalPages}</span>
+                    </div>
+
+                    <button
+                        className={styles.pageBtn}
+                        onClick={() => onPageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next <ChevronRight size={14} />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

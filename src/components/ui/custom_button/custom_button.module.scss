@@ -1,9 +1,8 @@
 .CustomButton {
   border: none;
-  padding: 12px 24px;
+  padding: 8px 14px;
   border-radius: $border-radius;
   font-size: 1rem;
-  font-weight: 600;
   cursor: pointer;
   transition: $transition-smooth;
   display: inline-flex;
@@ -15,16 +14,6 @@
   overflow: hidden;
 
   // Variants
-  &.primary {
-    background: linear-gradient(135deg, $color_primary 0%, darken($color_primary, 10%) 100%);
-    color: $color_text_primary;
-    box-shadow: 0 4px 15px rgba($color_primary, 0.3);
-
-    &:hover:not(:disabled) {
-      box-shadow: 0 6px 20px rgba($color_primary, 0.5);
-      transform: translateY(-2px);
-    }
-  }
 
   &.secondary {
     background: $color_bg_tertiary;
@@ -48,9 +37,7 @@
     }
   }
 
-  &.fullWidth {
-    width: 100%;
-  }
+  width: fit-content;
 
   &:disabled {
     opacity: 0.6;

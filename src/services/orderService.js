@@ -1,8 +1,8 @@
 import apiClient from './axiosClient';
 
 const orderService = {
-    getAllOrders: async () => {
-        const response = await apiClient.get('/orders');
+    getAllOrders: async (page = 1, limit = 10) => {
+        const response = await apiClient.get(`/orders?page=${page}&limit=${limit}`);
         return response.data;
     },
     getOrderById: async (id) => {

@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
 import styles from "./WorkerModal.module.scss";
-import { X } from "react-bootstrap-icons";
+import { X, CloudUpload } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import { useAuth } from "@/components/auth/AuthContext";
 import workerService from "@/services/workerService";
+import { supabase } from "@/lib/supabaseClient";
 
 const WorkerModal = ({ worker, onClose, onSave }) => {
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
         email: "",
-        experience: ""
+        experience: "",
+        password: "",
+        id_proof: null,
+        id_proof_url: ""
     });
+    const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(false);
     const { session } = useAuth(); // If we need token for edit later
 
@@ -21,37 +26,79 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                 name: worker.name || "",
                 phone: worker.phone || "",
                 email: worker.email || "",
-                experience: worker.experience || ""
+                experience: worker.experience || "",
+                id_proof_url: worker.id_proof_url || ""
             });
         }
     }, [worker]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, files } = e.target;
+        if (name === "id_proof") {
+            setFormData(prev => ({ ...prev, [name]: files[0] }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleIdProofUpload = async (file) => {
+        if (!file) return null;
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `workers/id_proofs/${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        const filePath = fileName;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('catalog') // Using catalog bucket as it's already configured
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: true
+            });
+
+        if (uploadError) {
+            throw new Error(`Upload failed: ${uploadError.message}`);
+        }
+
+        const { data: urlData } = supabase.storage.from('catalog').getPublicUrl(filePath);
+        return urlData?.publicUrl;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (worker) {
-            // Edit Mode - Handled by parent for now or we can implement update API here too
-            // For now, let's keep the local update logic in parent but ideally this should also be an API call
             onSave(formData);
         } else {
             // Create Mode via API
             try {
                 setLoading(true);
-                const data = await workerService.createWorker(formData);
+                setUploading(true);
+
+                let idProofUrl = null;
+                if (formData.id_proof) {
+                    idProofUrl = await handleIdProofUpload(formData.id_proof);
+                }
+
+                const payload = {
+                    name: formData.name,
+                    phone: formData.phone,
+                    email: formData.email,
+                    experience: formData.experience,
+                    password: formData.password,
+                    id_proof_url: idProofUrl
+                };
+
+                const data = await workerService.createWorker(payload);
                 toast.success("Worker created successfully");
-                onSave(data); // Pass back success or the new worker data if needed
+                onSave(data);
                 onClose();
 
             } catch (error) {
                 console.error("Worker Creation Error:", error);
-                toast.error(error.message);
+                toast.error(error.message || "Failed to create worker");
             } finally {
                 setLoading(false);
+                setUploading(false);
             }
         }
     };
@@ -114,10 +161,54 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                         />
                     </div>
 
+                    {!worker && (
+                        <div className={styles.formGroup}>
+                            <label>Password</label>
+                            <input
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Set worker password"
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+                    )}
+
+                    {!worker && (
+                        <div className={styles.imageUpload}>
+                            <label>ID Proof</label>
+                            <div className={styles.preview}>
+                                {formData.id_proof ? (
+                                    <img src={URL.createObjectURL(formData.id_proof)} alt="Preview" />
+                                ) : (
+                                    <span><CloudUpload size={20} /><br />Upload ID Proof</span>
+                                )}
+                                <input
+                                    name="id_proof"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleChange}
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {worker && formData.id_proof_url && (
+                        <div className={styles.imageUpload}>
+                            <label>ID Proof (Existing)</label>
+                            <div className={styles.preview} onClick={() => window.open(formData.id_proof_url, '_blank')}>
+                                <img src={formData.id_proof_url} alt="ID Proof" title="Click to view full size" />
+                            </div>
+                        </div>
+                    )}
+
                     <div className={styles.footer}>
                         <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={loading}>Cancel</button>
-                        <button type="submit" className={styles.saveBtn} disabled={loading}>
-                            {loading ? "Saving..." : (worker ? "Update Worker" : "Add Worker")}
+                        <button type="submit" className={styles.saveBtn} disabled={loading || uploading}>
+                            {uploading ? "Uploading..." : (loading ? "Saving..." : (worker ? "Update Worker" : "Add Worker"))}
                         </button>
                     </div>
                 </form>

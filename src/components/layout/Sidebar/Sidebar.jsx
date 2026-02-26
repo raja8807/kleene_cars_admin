@@ -24,7 +24,6 @@ const Sidebar = ({ collapsed, onToggle }) => {
         { label: "Workers", icon: <PersonVideo3 />, path: "/workers" },
         { label: "Catalog", icon: <CollectionFill />, path: "/catalog" }, // Or drop-down for Products/Services/Categories
         { label: "Customers", icon: <PeopleFill />, path: "/customers" },
-        { label: "Banners", icon: <Image />, path: "/banners" },
     ];
 
     // Helper to check active state
