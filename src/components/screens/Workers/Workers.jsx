@@ -72,17 +72,24 @@ const WorkersScreen = () => {
         }
     };
 
-    const handleToggleStatus = (id) => {
-        // Prepare for API call
-        setWorkers(prev => prev.map(w => {
-            if (w.id === id) {
-                const newStatus = w.status === "Active" ? "Inactive" : "Active";
-                // toast.info(`Worker marked as ${newStatus}`); 
-                // In real app, call API here to update status
-                return { ...w, status: newStatus };
-            }
-            return w;
-        }));
+    const handleToggleStatus = async (id) => {
+        const worker = workers.find(w => w.id === id);
+        if (!worker) return;
+
+        const newStatus = worker.status === "Active" ? "Inactive" : "Active";
+
+        try {
+            // Optimistic update
+            setWorkers(prev => prev.map(w => w.id === id ? { ...w, status: newStatus } : w));
+
+            await workerService.updateWorker(id, { status: newStatus });
+            toast.success(`Worker status updated to ${newStatus}`);
+        } catch (error) {
+            console.error("Failed to update worker status", error);
+            // Rollback on error
+            setWorkers(prev => prev.map(w => w.id === id ? { ...w, status: worker.status } : w));
+            toast.error("Failed to update status");
+        }
     };
 
     const handleSaveWorker = (workerData) => {
@@ -133,7 +140,11 @@ const WorkersScreen = () => {
         { label: "Orders", key: "assignedOrders", render: (row) => <span style={{ fontWeight: 600 }}>{row.assignedOrders}</span> },
         {
             label: "Status", key: "status", render: (row) => (
-                <label className={styles.toggleSwitch}>
+                <label className={styles.toggleSwitch}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                    }}
+                >
                     <input
                         type="checkbox"
                         checked={row.status === "Active"}

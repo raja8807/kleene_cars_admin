@@ -286,6 +286,42 @@
       font-weight: 700;
       color: $color_text_primary;
     }
+
+    .resourceList {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+      width: 100%;
+      padding: 10px;
+      background-color: rgba($color_bg_tertiary, 0.5);
+      border-radius: $border-radius-sm;
+      border: 1px dashed $color_border;
+
+      .resourceBadge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: $color_text_secondary;
+
+        svg {
+          font-size: 14px;
+          margin-right: 10px;
+          margin-bottom: 4px;
+        }
+
+        &.available {
+          color: $color_success;
+        }
+
+        &.notAvailable {
+          color: $color_error;
+        }
+      }
+    }
   }
 }
 
@@ -297,12 +333,37 @@
   flex-direction: column;
   gap: 20px;
 
+  .billBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $color_divider;
+
+    .billRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: $color_text_secondary;
+
+      span:last-child {
+        font-weight: 600;
+        color: $color_text_primary;
+      }
+
+      .charge {
+        color: $color_error !important;
+      }
+    }
+  }
+
   .totalRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 1px solid $color_divider;
+    padding-top: 20px;
+    border-top: none; // Reset previous border if any
 
     span {
       font-size: 16px;
@@ -444,6 +505,13 @@
       .wName {
         font-weight: 600;
         color: $color_text_primary;
+
+        .busyLabel {
+          font-size: 11px;
+          color: $color_error;
+          font-weight: 500;
+          margin-left: 4px;
+        }
       }
 
       .wMeta {
@@ -461,6 +529,23 @@
       color: $color_text_primary;
       font-size: 12px;
       font-weight: 500;
+    }
+
+    &.busy {
+      cursor: not-allowed;
+      border-color: $color_divider;
+      background-color: rgba($color_divider, 0.1);
+
+      &:hover {
+        border-color: $color_divider;
+        background-color: rgba($color_divider, 0.1);
+      }
+
+      .selectBtn {
+        background-color: $color_divider;
+        color: $color_text_tertiary;
+        opacity: 0.6;
+      }
     }
   }
 }

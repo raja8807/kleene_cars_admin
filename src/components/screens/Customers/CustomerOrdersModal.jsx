@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { calculateOrderPrice } from "@/utils/priceHelpers";
 import styles from "./CustomerOrdersModal.module.scss";
 import { X, BagCheck } from "react-bootstrap-icons";
 import customerService from "@/services/customerService";
@@ -85,7 +86,7 @@ const CustomerOrdersModal = ({ customer, onClose }) => {
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td>₹{order.total_amount}</td>
+                                            <td>₹{calculateOrderPrice(order).totalAmount}</td>
                                         </tr>
                                     ))}
                                 </tbody>

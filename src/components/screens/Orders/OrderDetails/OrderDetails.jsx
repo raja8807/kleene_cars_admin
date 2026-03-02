@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { calculateOrderPrice } from "@/utils/priceHelpers";
 import styles from "./OrderDetails.module.scss";
 import {
   X,
@@ -33,7 +34,11 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   const fetchWorkers = async () => {
     try {
       setLoadingWorkers(true);
-      const data = await workerService.getAllWorkers();
+      const data = await workerService.getAllWorkers({
+        date: order.scheduled_date,
+        time: order.scheduled_time,
+        status: "Active",
+      });
       setWorkers(data || []);
     } catch (error) {
       console.error("Failed to fetch workers", error);
@@ -104,6 +109,9 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     });
   };
 
+  // Helper: Calculate Price Breakdown
+  const { subtotal, resourceCharges, totalAmount } = calculateOrderPrice(order);
+
   const renderActionButtons = () => {
     if (order?.status === "Booked") {
       return (
@@ -172,6 +180,15 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     }
 
     return null; // No actions for Cancelled or Completed (usually)
+  };
+
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   return (
@@ -280,7 +297,7 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
             <div className={styles.row}>
               <span className={styles.label}>Scheduled Date</span>
               <span className={styles.value}>
-                <CalendarCheck size={14} /> {order?.scheduled_date || "Today"}
+                <CalendarCheck size={14} /> {formatDate(order?.scheduled_date) || "Today"}
               </span>
             </div>
             <div className={styles.row}>
@@ -298,12 +315,46 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
           <div className={styles.card}>
             <div className={styles.itemList}>
               {order?.OrderItems?.map((item, i) => (
-                <div key={i} className={styles.item}>
-                  <div className={styles.itemInfo}>
-                    <span className={styles.name}>{item.name}</span>
-                    <span className={styles.type}>{item.item_type}</span>
+                <div key={i} className={styles.item} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <div className={styles.itemInfo}>
+                      <span className={styles.name}>{item.name}</span>
+                      <span className={styles.type}>{item.item_type}</span>
+                    </div>
+                    <span className={styles.price}>₹{item.ServiceDetail?.discount_price || item.price}</span>
                   </div>
-                  <span className={styles.price}>₹{item.price}</span>
+
+                  {item.item_type === "service" && (item.ServiceDetail?.water_required || item.ServiceDetail?.electricity_required) && (
+                    <div className={styles.resourceList}>
+                      {item.ServiceDetail?.water_required && (
+                        <div className={`${styles.resourceBadge} ${item.water_available ? styles.available : styles.notAvailable}`}>
+                          <span>
+                            {item.water_available ? (
+                              <CheckCircleFill size={14} />
+                            ) : (
+                              <XCircleFill size={14} />
+                            )}
+                            Water</span> <p>
+                            {!item.water_available && item.ServiceDetail?.water_price > 0 && `+₹${item.ServiceDetail.water_price}`}
+                          </p>
+                        </div>
+                      )}
+
+                      {item.ServiceDetail?.electricity_required && (
+                        <div className={`${styles.resourceBadge} ${item.electricity_available ? styles.available : styles.notAvailable}`}>
+                          <span>
+                            {item.electricity_available ? (
+                              <CheckCircleFill size={14} />
+                            ) : (
+                              <XCircleFill size={14} />
+                            )}
+                            Electricity</span> <p>
+                            {!item.electricity_available && item.ServiceDetail?.electricity_price > 0 && `+₹${item.ServiceDetail.electricity_price}`}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -313,59 +364,8 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
 
           <div className={styles.card}>
             <div className={styles.itemList}>
-              <div className={styles.item}>
-                <div className={styles.itemInfo}>
-                  <span
-                    className={styles.name}
-                    style={{
-                      marginBottom: "16px",
-                    }}
-                  >
-                    {order?.water_available ? (
-                      <CheckCircleFill
-                        size={18}
-                        color="green"
-                        style={{
-                          marginRight: "10px",
-                        }}
-                      />
-                    ) : (
-                      <XCircleFill
-                        size={18}
-                        color="red"
-                        style={{
-                          marginRight: "10px",
-                        }}
-                      />
-                    )}
-                    Water Available
-                  </span>
-
-                  <span className={styles.name}>
-                    {order?.water_available ? (
-                      <CheckCircleFill
-                        size={18}
-                        color="green"
-                        style={{
-                          marginRight: "10px",
-                        }}
-                      />
-                    ) : (
-                      <XCircleFill
-                        size={18}
-                        color="red"
-                        style={{
-                          marginRight: "10px",
-                        }}
-                      />
-                    )}
-                    Electricity Available
-                  </span>
-                </div>
-              </div>
-
               <small>Additional Notes</small>
-              <p>{order?.additional_notes}</p>
+              <p>{order?.additional_notes || "None"}</p>
             </div>
           </div>
         </div>
@@ -407,9 +407,21 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
 
       {/* Footer Actions */}
       <div className={styles.footer}>
+        <div className={styles.billBreakdown}>
+          <div className={styles.billRow}>
+            <span>Items Subtotal</span>
+            <span>₹{subtotal}</span>
+          </div>
+          {resourceCharges > 0 && (
+            <div className={styles.billRow}>
+              <span>Resource Charges</span>
+              <span className={styles.charge}>+₹{resourceCharges}</span>
+            </div>
+          )}
+        </div>
         <div className={styles.totalRow}>
           <span>Total Amount</span>
-          <strong>₹{order?.total_amount}</strong>
+          <strong>₹{totalAmount}</strong>
         </div>
         {renderActionButtons()}
       </div>
@@ -446,8 +458,8 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
                 workers.map((worker) => (
                   <div
                     key={worker.id}
-                    className={styles.workerItem}
-                    onClick={() => handleAssignWorker(worker)}
+                    className={`${styles.workerItem} ${worker.is_busy ? styles.busy : ""}`}
+                    onClick={() => !worker.is_busy && handleAssignWorker(worker)}
                   >
                     <div className={styles.workerInfo}>
                       <div
@@ -459,19 +471,30 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
+                          opacity: worker.is_busy ? 0.5 : 1,
                         }}
                       >
                         <Person />
                       </div>
-                      <div>
-                        <div className={styles.wName}>{worker.name}</div>
+                      <div style={{ opacity: worker.is_busy ? 0.5 : 1 }}>
+                        <div className={styles.wName}>
+                          {worker.name}
+                          {worker.is_busy && (
+                            <span className={styles.busyLabel}> (Busy)</span>
+                          )}
+                        </div>
                         <div className={styles.wMeta}>
                           ⭐ {worker.rating || "New"} •{" "}
                           {worker.experience || "N/A"}
                         </div>
                       </div>
                     </div>
-                    <button className={styles.selectBtn}>Assign</button>
+                    <button
+                      className={styles.selectBtn}
+                      disabled={worker.is_busy}
+                    >
+                      {worker.is_busy ? "Busy" : "Assign"}
+                    </button>
                   </div>
                 ))
               ) : (

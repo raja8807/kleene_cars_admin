@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { calculateOrderPrice } from "@/utils/priceHelpers";
 import styles from "./Orders.module.scss";
 import DataTable from "@/components/ui/DataTable/DataTable";
 import OrderDetails from "./OrderDetails/OrderDetails";
@@ -15,13 +16,7 @@ import {
 import { toast } from "react-toastify";
 import orderService from "@/services/orderService";
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-};
+
 
 const OrdersScreen = () => {
   const [orders, setOrders] = useState([]);
@@ -36,13 +31,18 @@ const OrdersScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetchOrders(currentPage);
-  }, [currentPage]);
+    fetchOrders(currentPage, filter);
+  }, [currentPage, filter]);
 
-  const fetchOrders = async (page = 1) => {
+  const onFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+
+  const fetchOrders = async (page = 1, status = "All Orders") => {
     try {
       setLoading(true);
-      const data = await orderService.getAllOrders(page);
+      const data = await orderService.getAllOrders(page, 10, status);
       setOrders(data.data || []);
       setPagination({
         totalItems: data.totalItems,
@@ -88,10 +88,6 @@ const OrdersScreen = () => {
   const getFilteredOrders = () => {
     let result = orders;
 
-    if (filter !== "All Orders") {
-      result = result.filter((o) => o.status === filter);
-    }
-
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -106,6 +102,15 @@ const OrdersScreen = () => {
   };
 
   const filteredOrders = getFilteredOrders();
+
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
 
   const columns = [
     {
@@ -124,7 +129,7 @@ const OrdersScreen = () => {
         </>
       ),
       key: "created_at",
-      render: (row) => row.created_at.split("T")[0],
+      render: (row) => <p>{formatDate(row.created_at)} <br /> {row.scheduled_time}</p>,
     },
     {
       label: (
@@ -142,7 +147,10 @@ const OrdersScreen = () => {
         </>
       ),
       key: "total_amount",
-      render: (row) => <strong>₹{row.total_amount}</strong>,
+      render: (row) => {
+        const { totalAmount } = calculateOrderPrice(row);
+        return <strong>₹{totalAmount}</strong>;
+      },
     },
     {
       label: "Status",
@@ -220,7 +228,7 @@ const OrdersScreen = () => {
                 <button
                   key={f}
                   className={filter === f ? styles.active : ""}
-                  onClick={() => setFilter(f)}
+                  onClick={() => onFilterChange(f)}
                 >
                   {f}
                 </button>
