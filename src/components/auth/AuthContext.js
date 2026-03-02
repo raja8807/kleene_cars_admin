@@ -59,10 +59,11 @@ export const AuthProvider = ({ children }) => {
         try {
             // const { data: { session } } = await supabase.auth.getSession(); // This line might be removed if authService handles tokens
             const profile = await authService.getProfile();
+
             // Adapt if needed, assuming service returns data directly
             if (profile) {
                 setRole(profile.role || 'customer'); // Assuming profile object has a 'role' property
-                setUser(authUser); // Keep authUser as the primary user object from Supabase
+                setUser(profile); // Keep authUser as the primary user object from Supabase
             } else {
                 console.warn("Profile fetch failed");
                 setUser(authUser);
@@ -95,6 +96,8 @@ export const AuthProvider = ({ children }) => {
         role,
         loading,
         isAdmin: role === 'admin',
+        isSubAdmin: role === 'sub-admin',
+        isAnyAdmin: role === 'admin' || role === 'sub-admin',
         signIn,
         signOut,
         session
@@ -113,7 +116,7 @@ export const AuthGuard = ({ children }) => {
         if (!loading) {
             if (!user) {
                 router.push('/login');
-            } else if (role !== 'admin') {
+            } else if (role !== 'admin' && role !== 'sub-admin') {
                 // Prevent non-admins
                 // Optional: signOut() to force them to login as admin?
                 // Or just show Access Denied
@@ -125,7 +128,7 @@ export const AuthGuard = ({ children }) => {
         return <LoadingScreen />;
     }
 
-    if (!user || role !== 'admin') {
+    if (!user || (role !== 'admin' && role !== 'sub-admin')) {
         // If redirect hasn't happened yet (useEffect lag), show nothing or denied msg
         if (!user) return null;
         return (

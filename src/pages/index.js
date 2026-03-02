@@ -1,7 +1,15 @@
 import HomeScreen from "@/components/screens/home/home";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 const Home = () => {
-  return <HomeScreen />;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/orders");
+  }, []);
+
+  return <></>;
 };
 
 export default Home;

@@ -2,9 +2,11 @@ import React from "react";
 import { BellFill } from "react-bootstrap-icons";
 import { useRouter } from "next/router";
 import styles from "./Header.module.scss";
+import { useAuth } from "@/components/auth/AuthContext";
 
 const Header = () => {
   const router = useRouter();
+  const { user, role } = useAuth();
 
   const getTitle = () => {
     const path = router.pathname;
@@ -14,6 +16,9 @@ const Header = () => {
     if (path === "/customers") return "Customer Management";
     return "Admin Panel";
   };
+
+  console.log(user);
+
 
   return (
     <header className={styles.header}>
@@ -27,10 +32,10 @@ const Header = () => {
         </button>
 
         <div className={styles.profile}>
-          <div className={styles.avatar}>AD</div>
+          <div className={styles.avatar}>{user?.name?.charAt?.(0)?.toUpperCase?.() || "A"}</div>
           <div className={styles.info}>
-            <span className={styles.name}>Admin User</span>
-            <span className={styles.role}>Super Admin</span>
+            <span className={styles.name}>{user?.name || "Admin User"}</span>
+            <span className={styles.role}>{role}</span>
           </div>
         </div>
       </div>

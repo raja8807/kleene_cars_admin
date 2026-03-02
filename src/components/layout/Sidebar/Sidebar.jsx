@@ -9,7 +9,8 @@ import {
     Image, // Banner
     BoxArrowRight,
     CarFrontFill,
-    PersonVideo3
+    PersonVideo3,
+    ShieldLockFill
 } from "react-bootstrap-icons";
 import styles from "./Sidebar.module.scss";
 import { useAuth } from "@/components/auth/AuthContext";
@@ -19,12 +20,16 @@ const Sidebar = ({ collapsed, onToggle }) => {
     const { signOut } = useAuth();
 
     const menuItems = [
-        { label: "Dashboard", icon: <Grid1x2Fill />, path: "/" },
+
         { label: "Orders", icon: <CartFill />, path: "/orders" },
         { label: "Workers", icon: <PersonVideo3 />, path: "/workers" },
-        { label: "Catalog", icon: <CollectionFill />, path: "/catalog" }, // Or drop-down for Products/Services/Categories
+        { label: "Admins", icon: <ShieldLockFill />, path: "/admins", adminOnly: true },
+        { label: "Catalog", icon: <CollectionFill />, path: "/catalog", adminOnly: true }, // Catalog restricted to admin
         { label: "Customers", icon: <PeopleFill />, path: "/customers" },
     ];
+
+    const { role } = useAuth();
+    const filteredMenuItems = menuItems.filter(item => !item.adminOnly || role === 'admin');
 
     // Helper to check active state
     const isActive = (path) => router.pathname === path;
@@ -47,7 +52,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
 
 
             <nav className={styles.nav}>
-                {menuItems.map((item) => (
+                {filteredMenuItems.map((item) => (
                     <Link href={item.path} key={item.path} className={`${styles.navItem} ${isActive(item.path) ? styles.active : ""}`} title={collapsed ? item.label : ""}>
                         <span className={styles.icon}>{item.icon}</span>
                         {!collapsed && <span>{item.label}</span>}

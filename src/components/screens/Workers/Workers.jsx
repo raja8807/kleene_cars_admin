@@ -9,12 +9,14 @@ import {
 } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import workerService from "@/services/workerService";
+import { useAuth } from "@/components/auth/AuthContext";
 
 const WorkerMapModal = dynamic(() => import("./WorkerMapModal/WorkerMapModal"), {
     ssr: false,
 });
 
 const WorkersScreen = () => {
+    const { isAdmin } = useAuth();
     const [workers, setWorkers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("All");
@@ -148,9 +150,16 @@ const WorkersScreen = () => {
                     <input
                         type="checkbox"
                         checked={row.status === "Active"}
-                        onChange={() => handleToggleStatus(row.id)}
+                        onChange={() => {
+                            if (!isAdmin) {
+                                toast.info("Only admins can change status");
+                                return;
+                            }
+                            handleToggleStatus(row.id);
+                        }}
+                        disabled={!isAdmin}
                     />
-                    <span className={styles.slider}></span>
+                    <span className={`${styles.slider} ${!isAdmin ? styles.disabled : ''}`}></span>
                 </label>
             )
         },
@@ -168,12 +177,16 @@ const WorkersScreen = () => {
                     >
                         <GeoAlt />
                     </button>
-                    <button className={styles.edit} onClick={(e) => { e.stopPropagation(); handleEdit(row); }} title="Edit">
-                        <Pencil />
-                    </button>
-                    <button className={styles.delete} onClick={(e) => { e.stopPropagation(); handleDelete(row.id); }} title="Delete">
-                        <Trash />
-                    </button>
+                    {isAdmin && (
+                        <>
+                            <button className={styles.edit} onClick={(e) => { e.stopPropagation(); handleEdit(row); }} title="Edit">
+                                <Pencil />
+                            </button>
+                            <button className={styles.delete} onClick={(e) => { e.stopPropagation(); handleDelete(row.id); }} title="Delete">
+                                <Trash />
+                            </button>
+                        </>
+                    )}
                 </div>
             )
         }
@@ -227,9 +240,11 @@ const WorkersScreen = () => {
                             </select>
                         </div>
                     </div>
-                    <button className={styles.addBtn} onClick={handleAdd}>
-                        <Plus size={20} /> Add Worker
-                    </button>
+                    {isAdmin && (
+                        <button className={styles.addBtn} onClick={handleAdd}>
+                            <Plus size={20} /> Add Worker
+                        </button>
+                    )}
                 </div>
 
                 {/* Table */}

@@ -132,6 +132,61 @@
         gap: 12px;
     }
 
+    .resourceGroup {
+        background-color: rgba($color_primary, 0.05);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba($color_primary, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .resourceHeader {
+            font-size: 13px;
+            font-weight: 700;
+            color: $color_primary;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .resourceRows {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .resourceRow {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+
+            .checkboxGroup {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 180px;
+
+                input[type="checkbox"] {
+                    width: 18px;
+                    height: 18px;
+                    cursor: pointer;
+                }
+
+                label {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: $color_text_secondary;
+                    cursor: pointer;
+                }
+            }
+
+            .priceInput {
+                flex: 1;
+                margin-bottom: 0 !important;
+            }
+        }
+    }
+
     .actions {
         display: flex;
         justify-content: flex-end;

@@ -22,7 +22,7 @@ const Login = () => {
             if (user) {
                 // AuthGuard will handle role check and redirection, 
                 // but explicit push is safer for UX response
-                router.push("/");
+                router.push("/orders");
             }
         } catch (err) {
             console.error(err);

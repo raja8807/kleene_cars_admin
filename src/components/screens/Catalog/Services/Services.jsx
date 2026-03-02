@@ -22,7 +22,11 @@ const Services = () => {
         price: "",
         discount_price: "",
         description: "",
-        image: null
+        image: null,
+        water_required: false,
+        electricity_required: false,
+        water_price: 0,
+        electricity_price: 0
     });
 
     useEffect(() => {
@@ -60,7 +64,11 @@ const Services = () => {
             price: service?.price || "",
             discount_price: service?.discount_price || "",
             description: service?.description || "",
-            image: service?.image || null
+            image: service?.image || null,
+            water_required: service?.water_required || false,
+            electricity_required: service?.electricity_required || false,
+            water_price: service?.water_price || 0,
+            electricity_price: service?.electricity_price || 0
         });
         setModalOpen(true);
     };
@@ -119,7 +127,11 @@ const Services = () => {
                 price: parseFloat(formData.price) || 0,
                 discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
                 description: formData.description,
-                image: imageUrl
+                image: imageUrl,
+                water_required: formData.water_required,
+                electricity_required: formData.electricity_required,
+                water_price: parseFloat(formData.water_price) || 0,
+                electricity_price: parseFloat(formData.electricity_price) || 0
             };
 
             let result;
@@ -265,6 +277,53 @@ const Services = () => {
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
+                    </div>
+
+                    <div className={styles.resourceGroup}>
+                        <div className={styles.resourceHeader}>Resource Requirements</div>
+                        <div className={styles.resourceRows}>
+                            <div className={styles.resourceRow}>
+                                <div className={styles.checkboxGroup}>
+                                    <input
+                                        type="checkbox"
+                                        id="water_required"
+                                        checked={formData.water_required}
+                                        onChange={(e) => setFormData({ ...formData, water_required: e.target.checked })}
+                                    />
+                                    <label htmlFor="water_required">Water Required</label>
+                                </div>
+                                {formData.water_required && (
+                                    <CustomInput
+                                        label="Water Price"
+                                        type="number"
+                                        value={formData.water_price}
+                                        onChange={(e) => setFormData({ ...formData, water_price: e.target.value })}
+                                        className={styles.priceInput}
+                                    />
+                                )}
+                            </div>
+
+                            <div className={styles.resourceRow}>
+                                <div className={styles.checkboxGroup}>
+                                    <input
+                                        type="checkbox"
+                                        id="electricity_required"
+                                        checked={formData.electricity_required}
+                                        onChange={(e) => setFormData({ ...formData, electricity_required: e.target.checked })}
+                                    />
+                                    <label htmlFor="electricity_required">Electricity Required</label>
+                                </div>
+                                {formData.electricity_required && (
+                                    <CustomInput
+                                        label="Electricity Price"
+                                        type="number"
+                                        value={formData.electricity_price}
+                                        onChange={(e) => setFormData({ ...formData, electricity_price: e.target.value })}
+                                        className={styles.priceInput}
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     <div className={styles.actions}>

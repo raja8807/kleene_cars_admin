@@ -3,9 +3,10 @@ import styles from "./Customers.module.scss";
 import DataTable from "@/components/ui/DataTable/DataTable";
 import { supabase } from "@/lib/supabaseClient";
 import customerService from "@/services/customerService";
-import { Search, Eye } from "react-bootstrap-icons";
+import { Search, Eye, Bell } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import CustomerOrdersModal from "./CustomerOrdersModal";
+import NotificationModal from "./NotificationModal";
 import CustomButton from "@/components/ui/custom_button/custom_button";
 
 const CustomersScreen = () => {
@@ -18,6 +19,10 @@ const CustomersScreen = () => {
     });
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [notifyCustomer, setNotifyCustomer] = useState(null);
+
+    console.log(notifyCustomer);
+
 
     useEffect(() => {
         fetchUsers(currentPage);
@@ -59,24 +64,44 @@ const CustomersScreen = () => {
             label: "Actions",
             key: "actions",
             render: (row) => (
-                <button
-                    style={{
-                        padding: "6px 12px",
-                        backgroundColor: "var(--color-bg-tertiary)",
-                        border: "1px solid var(--color-divider)",
-                        borderRadius: "4px",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        cursor: "pointer",
-                        color: "var(--color-text-primary)"
-                    }}
-                    onClick={() => setSelectedCustomer(row)}
-                >
-                    <Eye size={14} /> View Orders
-                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                        style={{
+                            padding: "6px 12px",
+                            backgroundColor: "var(--color-bg-tertiary)",
+                            border: "1px solid var(--color-divider)",
+                            borderRadius: "4px",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            cursor: "pointer",
+                            color: "var(--color-text-primary)"
+                        }}
+                        onClick={() => setSelectedCustomer(row)}
+                    >
+                        <Eye size={14} /> View Orders
+                    </button>
+                    <button
+                        style={{
+                            padding: "6px 12px",
+                            backgroundColor: "rgba(var(--color-primary-rgb), 0.1)",
+                            border: "1px solid var(--color-primary)",
+                            borderRadius: "4px",
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            cursor: "pointer",
+                            color: "var(--color-primary)"
+                        }}
+                        onClick={() => setNotifyCustomer(row)}
+                    >
+                        <Bell size={14} /> Notify
+                    </button>
+                </div>
             )
         },
     ];
@@ -114,6 +139,13 @@ const CustomersScreen = () => {
                 <CustomerOrdersModal
                     customer={selectedCustomer}
                     onClose={() => setSelectedCustomer(null)}
+                />
+            )}
+
+            {notifyCustomer && (
+                <NotificationModal
+                    customer={notifyCustomer}
+                    onClose={() => setNotifyCustomer(null)}
                 />
             )}
         </div>
