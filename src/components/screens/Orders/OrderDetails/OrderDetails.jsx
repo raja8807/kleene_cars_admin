@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import orderService from "@/services/orderService";
 import workerService from "@/services/workerService";
 import CustomButton from "@/components/ui/custom_button/custom_button";
+import { Image } from "react-bootstrap";
 
 const OrderDetails = ({ order, onClose, onUpdate }) => {
   const [updating, setUpdating] = useState(false);
@@ -25,7 +26,12 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   const [workers, setWorkers] = useState([]);
   const [loadingWorkers, setLoadingWorkers] = useState(false);
 
+  const evidence = order?.OrderEvidences || [];
+  const beforeImages = evidence.filter(e => e.evidence_type === 'before');
+  const afterImages = evidence.filter(e => e.evidence_type === 'after');
+
   useEffect(() => {
+
     if (showWorkerModal && workers.length === 0) {
       fetchWorkers();
     }
@@ -183,7 +189,24 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   };
 
 
+  const renderEvidence = (title, images) => {
+    if (images.length === 0) return null;
+    return (
+      <div className={styles.evidenceSection}>
+        <h4>{title}</h4>
+        <div className={styles.imageGrid}>
+          {images.map((img, idx) => (
+            <div key={idx} className={styles.imageWrapper} onClick={() => window.open(img.image_url, '_blank')}>
+              <Image fluid src={img.image_url} alt={`${title} ${idx + 1}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const formatDate = (date) => {
+
     return new Date(date).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
@@ -403,7 +426,19 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
             </div>
           </div>
         )}
+
+        {/* Evidence Section */}
+        {(beforeImages.length > 0 || afterImages.length > 0) && (
+          <div className={styles.section}>
+            <h3>Evidence Photos</h3>
+            <div className={styles.card}>
+              {renderEvidence("Before Service", beforeImages)}
+              {renderEvidence("After Service", afterImages)}
+            </div>
+          </div>
+        )}
       </div>
+
 
       {/* Footer Actions */}
       <div className={styles.footer}>

@@ -548,6 +548,65 @@
       }
     }
   }
+
+  .evidenceSection {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: $color_text_secondary;
+      margin-bottom: 12px;
+    }
+
+
+  }
+
+}
+
+.imageGrid {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 12px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+
+  .imageWrapper {
+    flex: 0 0 120px;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $color_border;
+    cursor: pointer;
+    transition: $transition-smooth;
+
+    &:hover {
+      transform: translateY(-4px);
+      border-color: $color_primary;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
 }
 
 @keyframes slideUp {
