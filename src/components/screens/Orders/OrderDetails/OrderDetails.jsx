@@ -29,6 +29,7 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   const [loadingWorkers, setLoadingWorkers] = useState(false);
   const [payment, setPayment] = useState(null);
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     if (order?.id) {
@@ -49,11 +50,10 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   };
 
   const evidence = order?.OrderEvidences || [];
-  const beforeImages = evidence.filter(e => e.evidence_type === 'before');
-  const afterImages = evidence.filter(e => e.evidence_type === 'after');
+  const beforeImages = evidence.filter((e) => e.evidence_type === "before");
+  const afterImages = evidence.filter((e) => e.evidence_type === "after");
 
   useEffect(() => {
-
     if (showWorkerModal && workers.length === 0) {
       fetchWorkers();
     }
@@ -128,8 +128,6 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     }
   };
 
-  const [assigning, setAssigning] = useState(false);
-
   const handleAssignWorker = async (worker) => {
     setAssigning(true);
     try {
@@ -139,13 +137,11 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
       });
     } catch (error) {
       console.log(error);
-      alert('Something went wrong while assigning worker')
+      alert("Something went wrong while assigning worker");
     } finally {
-      setAssigning(false)
+      setAssigning(false);
     }
   };
-
-
 
   // Helper: Calculate Price Breakdown
   const { subtotal, resourceCharges, totalAmount } = calculateOrderPrice(order);
@@ -220,7 +216,6 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     return null; // No actions for Cancelled or Completed (usually)
   };
 
-
   const renderEvidence = (title, images) => {
     if (images.length === 0) return null;
     return (
@@ -228,7 +223,11 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
         <h4>{title}</h4>
         <div className={styles.imageGrid}>
           {images.map((img, idx) => (
-            <div key={idx} className={styles.imageWrapper} onClick={() => window.open(img.image_url, '_blank')}>
+            <div
+              key={idx}
+              className={styles.imageWrapper}
+              onClick={() => window.open(img.image_url, "_blank")}
+            >
               <Image fluid src={img.image_url} alt={`${title} ${idx + 1}`} />
             </div>
           ))}
@@ -238,7 +237,6 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   };
 
   const formatDate = (date) => {
-
     return new Date(date).toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
@@ -352,7 +350,8 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
             <div className={styles.row}>
               <span className={styles.label}>Scheduled Date</span>
               <span className={styles.value}>
-                <CalendarCheck size={14} /> {formatDate(order?.scheduled_date) || "Today"}
+                <CalendarCheck size={14} />{" "}
+                {formatDate(order?.scheduled_date) || "Today"}
               </span>
             </div>
             <div className={styles.row}>
@@ -370,46 +369,78 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
           <div className={styles.card}>
             <div className={styles.itemList}>
               {order?.OrderItems?.map((item, i) => (
-                <div key={i} className={styles.item} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                <div
+                  key={i}
+                  className={styles.item}
+                  style={{ flexDirection: "column", alignItems: "flex-start" }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      alignItems: "center",
+                    }}
+                  >
                     <div className={styles.itemInfo}>
-                      <span className={styles.name}>{item.name} {item.quantity > 1 ? `x ${item.quantity}` : ''}</span>
+                      <span className={styles.name}>
+                        {item.name}{" "}
+                        {item.quantity > 1 ? `x ${item.quantity}` : ""}
+                      </span>
                       <span className={styles.type}>{item.item_type}</span>
                     </div>
-                    <span className={styles.price}>₹{(item.ServiceDetail?.discount_price || item.price) * (item.quantity || 1)}</span>
+                    <span className={styles.price}>
+                      ₹
+                      {(item.ServiceDetail?.discount_price || item.price) *
+                        (item.quantity || 1)}
+                    </span>
                   </div>
 
-                  {item.item_type === "service" && (item.ServiceDetail?.water_required || item.ServiceDetail?.electricity_required) && (
-                    <div className={styles.resourceList}>
-                      {item.ServiceDetail?.water_required && (
-                        <div className={`${styles.resourceBadge} ${item.water_available ? styles.available : styles.notAvailable}`}>
-                          <span>
-                            {item.water_available ? (
-                              <CheckCircleFill size={14} />
-                            ) : (
-                              <XCircleFill size={14} />
-                            )}
-                            Water</span> <p>
-                            {!item.water_available && item.ServiceDetail?.water_price > 0 && `+₹${item.ServiceDetail.water_price}`}
-                          </p>
-                        </div>
-                      )}
+                  {item.item_type === "service" &&
+                    (item.ServiceDetail?.water_required ||
+                      item.ServiceDetail?.electricity_required) && (
+                      <div className={styles.resourceList}>
+                        {item.ServiceDetail?.water_required && (
+                          <div
+                            className={`${styles.resourceBadge} ${item.water_available ? styles.available : styles.notAvailable}`}
+                          >
+                            <span>
+                              {item.water_available ? (
+                                <CheckCircleFill size={14} />
+                              ) : (
+                                <XCircleFill size={14} />
+                              )}
+                              Water
+                            </span>{" "}
+                            <p>
+                              {!item.water_available &&
+                                item.ServiceDetail?.water_price > 0 &&
+                                `+₹${item.ServiceDetail.water_price}`}
+                            </p>
+                          </div>
+                        )}
 
-                      {item.ServiceDetail?.electricity_required && (
-                        <div className={`${styles.resourceBadge} ${item.electricity_available ? styles.available : styles.notAvailable}`}>
-                          <span>
-                            {item.electricity_available ? (
-                              <CheckCircleFill size={14} />
-                            ) : (
-                              <XCircleFill size={14} />
-                            )}
-                            Electricity</span> <p>
-                            {!item.electricity_available && item.ServiceDetail?.electricity_price > 0 && `+₹${item.ServiceDetail.electricity_price}`}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        {item.ServiceDetail?.electricity_required && (
+                          <div
+                            className={`${styles.resourceBadge} ${item.electricity_available ? styles.available : styles.notAvailable}`}
+                          >
+                            <span>
+                              {item.electricity_available ? (
+                                <CheckCircleFill size={14} />
+                              ) : (
+                                <XCircleFill size={14} />
+                              )}
+                              Electricity
+                            </span>{" "}
+                            <p>
+                              {!item.electricity_available &&
+                                item.ServiceDetail?.electricity_price > 0 &&
+                                `+₹${item.ServiceDetail.electricity_price}`}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
@@ -429,7 +460,9 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
         {order?.WorkerAssigned && (
           <div className={styles.section}>
             <h3>
-              <span><PersonBadge /> Worker Assigned</span>
+              <span>
+                <PersonBadge /> Worker Assigned
+              </span>
               <button
                 className={styles.changeWorkerBtn}
                 onClick={() => setShowWorkerModal(true)}
@@ -464,7 +497,10 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
           <div className={styles.section}>
             <h3>
               <CurrencyRupee /> Payment Details
-              <span className={`${styles.statusBadge} ${styles[payment.status?.toLowerCase()]}`} style={{ marginLeft: '12px', verticalAlign: 'middle' }}>
+              <span
+                className={`${styles.statusBadge} ${styles[payment.status?.toLowerCase()]}`}
+                style={{ marginLeft: "12px", verticalAlign: "middle" }}
+              >
                 {payment.status}
               </span>
             </h3>
@@ -472,15 +508,32 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
               <div className={styles.paymentItems}>
                 {payment.PaymentItems?.map((item, idx) => (
                   <div key={idx} className={styles.row}>
-                    <span className={styles.label}>{item.name} x {item.quantity}</span>
-                    <span className={styles.value}>₹{parseFloat(item.price) * item.quantity}</span>
+                    <span className={styles.label}>
+                      {item.name} x {item.quantity}
+                    </span>
+                    <span className={styles.value}>
+                      ₹{parseFloat(item.price) * item.quantity}
+                    </span>
                   </div>
                 ))}
               </div>
-              <div className={styles.row} style={{ borderTop: '1px solid #eee', paddingTop: '12px', marginTop: '8px' }}>
-                <span className={styles.label} style={{ fontWeight: 'bold' }}>Total Paid</span>
+              <div
+                className={styles.row}
+                style={{
+                  borderTop: "1px solid #eee",
+                  paddingTop: "12px",
+                  marginTop: "8px",
+                }}
+              >
+                <span className={styles.label} style={{ fontWeight: "bold" }}>
+                  Total Paid
+                </span>
                 <span className={`${styles.value} ${styles.successAmount}`}>
-                  ₹{payment.PaymentItems?.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)}
+                  ₹
+                  {payment.PaymentItems?.reduce(
+                    (sum, item) => sum + parseFloat(item.price) * item.quantity,
+                    0,
+                  )}
                 </span>
               </div>
             </div>
@@ -498,7 +551,6 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
           </div>
         )}
       </div>
-
 
       {/* Footer Actions */}
       <div className={styles.footer}>
@@ -545,13 +597,7 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
               </button>
             </div>
             <div className={styles.workerList}>
-              {
-                assigning && (
-                  <div className={styles.assigning}>
-                    Assigning..
-                  </div>
-                )
-              }
+              {assigning && <div className={styles.assigning}>Assigning..</div>}
               {loadingWorkers ? (
                 <div style={{ padding: 20, textAlign: "center" }}>
                   Loading workers...
@@ -561,7 +607,9 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
                   <div
                     key={worker.id}
                     className={`${styles.workerItem} ${worker.is_busy ? styles.busy : ""}`}
-                    onClick={() => !worker.is_busy && handleAssignWorker(worker)}
+                    onClick={() =>
+                      !worker.is_busy && handleAssignWorker(worker)
+                    }
                   >
                     <div className={styles.workerInfo}>
                       <div
