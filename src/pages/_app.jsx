@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import Layout from "@/components/layout/layout";
 import { FONTS } from "@/styles/fonts";
 import { AuthProvider, useAuth } from "@/components/auth/AuthContext";
+import { RefreshProvider } from "@/context/RefreshContext";
 
 const MainApp = ({ children }) => {
 
@@ -55,9 +56,11 @@ export default function App({ Component, pageProps }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <AuthProvider>
-        <MainApp>
-          <Component {...pageProps} />
-        </MainApp>
+        <RefreshProvider>
+          <MainApp>
+            <Component {...pageProps} />
+          </MainApp>
+        </RefreshProvider>
       </AuthProvider>
     </>
   );

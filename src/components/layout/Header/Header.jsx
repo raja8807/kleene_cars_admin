@@ -1,12 +1,15 @@
-import React from "react";
-import { BellFill } from "react-bootstrap-icons";
+import React, { useState } from "react";
+import { BellFill, ArrowClockwise } from "react-bootstrap-icons";
 import { useRouter } from "next/router";
 import styles from "./Header.module.scss";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useRefresh } from "@/context/RefreshContext";
 
 const Header = () => {
   const router = useRouter();
   const { user, role } = useAuth();
+  const { triggerRefresh } = useRefresh();
+  const [refreshing, setRefreshing] = useState(false);
 
   const getTitle = () => {
     const path = router.pathname;
@@ -14,10 +17,17 @@ const Header = () => {
     if (path === "/orders") return "Orders Management";
     if (path === "/catalog") return "Catalog Management";
     if (path === "/customers") return "Customer Management";
+    if (path === "/workers") return "Worker Management";
+    if (path === "/payments") return "Payments Overview";
+    if (path === "/admins") return "Admin Management";
     return "Admin Panel";
   };
 
-  console.log(user);
+  const handleRefresh = () => {
+    setRefreshing(true);
+    triggerRefresh();
+    setTimeout(() => setRefreshing(false), 1000);
+  };
 
 
   return (
@@ -27,6 +37,14 @@ const Header = () => {
       </div>
 
       <div className={styles.actions}>
+        <button
+          className={`${styles.iconBtn} ${refreshing ? styles.refreshing : ""}`}
+          onClick={handleRefresh}
+          title="Refresh Data"
+        >
+          <ArrowClockwise />
+        </button>
+
         <button className={styles.iconBtn}>
           <BellFill />
         </button>

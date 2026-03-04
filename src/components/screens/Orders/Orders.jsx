@@ -15,10 +15,12 @@ import {
 } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import orderService from "@/services/orderService";
+import { useRefresh } from "@/context/RefreshContext";
 
 
 
 const OrdersScreen = () => {
+  const { refreshKey } = useRefresh();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,7 +34,7 @@ const OrdersScreen = () => {
 
   useEffect(() => {
     fetchOrders(currentPage, filter);
-  }, [currentPage, filter]);
+  }, [currentPage, filter, refreshKey]);
 
   const onFilterChange = (newFilter) => {
     setFilter(newFilter);
@@ -85,23 +87,9 @@ const OrdersScreen = () => {
     completed: orders.filter((o) => o.status === "Completed").length,
   };
 
-  const getFilteredOrders = () => {
-    let result = orders;
 
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (o) =>
-          (o.order_id && o.order_id.toLowerCase().includes(q)) ||
-          o.id.toString().includes(q) ||
-          o.users?.full_name?.toLowerCase().includes(q),
-      );
-    }
 
-    return result;
-  };
 
-  const filteredOrders = getFilteredOrders();
 
 
   const formatDate = (date) => {

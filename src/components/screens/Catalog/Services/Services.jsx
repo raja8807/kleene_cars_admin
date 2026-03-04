@@ -7,8 +7,10 @@ import { supabase } from "@/lib/supabaseClient";
 import { Search, Plus, Pencil, Trash, CloudUpload, PencilSquare } from "react-bootstrap-icons";
 import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
+import { useRefresh } from "@/context/RefreshContext";
 
 const Services = () => {
+    const { refreshKey } = useRefresh();
     const [services, setServices] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -32,7 +34,7 @@ const Services = () => {
     useEffect(() => {
         fetchServices();
         fetchCategories();
-    }, []);
+    }, [refreshKey]);
 
     const fetchServices = async () => {
         try {

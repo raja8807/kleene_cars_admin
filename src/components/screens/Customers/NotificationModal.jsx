@@ -68,9 +68,9 @@ const NotificationModal = ({ customer, onClose }) => {
                     <CustomButton
                         // label={loading ? "Sending..." : "Send Notification"}
                         onClick={handleSend}
-                        // variant="primary"
-                        // icon={<SendFill />}
-                        disabled={loading}
+                    // variant="primary"
+                    // icon={<SendFill />}
+                    // disabled={loading}
                     >Send Notification</CustomButton>
                 </div>
             </div>

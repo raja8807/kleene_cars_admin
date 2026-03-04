@@ -9,8 +9,10 @@ import {
 import { toast } from "react-toastify";
 import adminService from "@/services/adminService";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useRefresh } from "@/context/RefreshContext";
 
 const AdminsScreen = () => {
+    const { refreshKey } = useRefresh();
     const { isAdmin } = useAuth();
     const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ const AdminsScreen = () => {
 
     useEffect(() => {
         fetchAdmins();
-    }, []);
+    }, [refreshKey]);
 
     const fetchAdmins = async () => {
         try {

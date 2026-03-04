@@ -9,17 +9,18 @@ export const calculateOrderPrice = (order) => {
 
     order?.OrderItems?.forEach((item) => {
         const itemBasePrice = Number(item.ServiceDetail?.discount_price || item.price || 0);
-        baseSubtotal += itemBasePrice;
+        const quantity = Number(item.quantity || 1);
+        baseSubtotal += itemBasePrice * quantity;
 
         if (item.item_type === "service" && item.ServiceDetail) {
             if (item.ServiceDetail.water_required && !item.water_available) {
-                resourceCharges += Number(item.ServiceDetail.water_price || 0);
+                resourceCharges += Number(item.ServiceDetail.water_price || 0) * quantity;
             }
             if (
                 item.ServiceDetail.electricity_required &&
                 !item.electricity_available
             ) {
-                resourceCharges += Number(item.ServiceDetail.electricity_price || 0);
+                resourceCharges += Number(item.ServiceDetail.electricity_price || 0) * quantity;
             }
         }
     });

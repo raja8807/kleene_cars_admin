@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "./home.module.scss";
 import StatCard from "@/components/ui/StatCard/StatCard";
-import DataTable from "@/components/ui/DataTable/DataTable";
-import { supabase } from "@/lib/supabaseClient";
 import dashboardService from "@/services/dashboardService";
+import { useRefresh } from "@/context/RefreshContext";
 import {
   CurrencyRupee,
   Cart,
@@ -22,6 +21,7 @@ import {
 } from 'recharts';
 
 const HomeScreen = () => {
+  const { refreshKey } = useRefresh();
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -33,13 +33,12 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [refreshKey]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       const data = await dashboardService.getStats();
-      // const response = await fetch... // Removed
 
       setStats({
         totalOrders: data.totalOrders || 0,

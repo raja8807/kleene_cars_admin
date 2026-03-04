@@ -42,6 +42,11 @@
                 background-color: $color_bg_tertiary;
                 color: $color_text_primary;
             }
+
+            &.refreshing {
+                color: $color_primary;
+                animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
         }
 
         .profile {

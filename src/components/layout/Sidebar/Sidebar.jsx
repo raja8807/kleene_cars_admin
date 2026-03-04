@@ -10,7 +10,8 @@ import {
     BoxArrowRight,
     CarFrontFill,
     PersonVideo3,
-    ShieldLockFill
+    ShieldLockFill,
+    CreditCardFill
 } from "react-bootstrap-icons";
 import styles from "./Sidebar.module.scss";
 import { useAuth } from "@/components/auth/AuthContext";
@@ -22,6 +23,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
     const menuItems = [
 
         { label: "Orders", icon: <CartFill />, path: "/orders" },
+        { label: "Payments", icon: <CreditCardFill />, path: "/payments" },
         { label: "Workers", icon: <PersonVideo3 />, path: "/workers" },
         { label: "Admins", icon: <ShieldLockFill />, path: "/admins", adminOnly: true },
         { label: "Catalog", icon: <CollectionFill />, path: "/catalog", adminOnly: true }, // Catalog restricted to admin

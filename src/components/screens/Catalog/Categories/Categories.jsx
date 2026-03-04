@@ -7,8 +7,10 @@ import { supabase } from "@/lib/supabaseClient";
 import { Plus, PencilSquare, Trash, CloudUpload } from "react-bootstrap-icons";
 import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
+import { useRefresh } from "@/context/RefreshContext";
 
 const Categories = () => {
+    const { refreshKey } = useRefresh();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -20,7 +22,7 @@ const Categories = () => {
 
     useEffect(() => {
         fetchCategories();
-    }, []);
+    }, [refreshKey]);
 
     const fetchCategories = async () => {
         try {

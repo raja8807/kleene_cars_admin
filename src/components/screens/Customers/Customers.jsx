@@ -7,9 +7,10 @@ import { Search, Eye, Bell } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import CustomerOrdersModal from "./CustomerOrdersModal";
 import NotificationModal from "./NotificationModal";
-import CustomButton from "@/components/ui/custom_button/custom_button";
+import { useRefresh } from "@/context/RefreshContext";
 
 const CustomersScreen = () => {
+    const { refreshKey } = useRefresh();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,12 +22,9 @@ const CustomersScreen = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [notifyCustomer, setNotifyCustomer] = useState(null);
 
-    console.log(notifyCustomer);
-
-
     useEffect(() => {
         fetchUsers(currentPage);
-    }, [currentPage]);
+    }, [currentPage, refreshKey]);
 
     const fetchUsers = async (page = 1) => {
         try {

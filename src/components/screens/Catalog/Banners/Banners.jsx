@@ -6,8 +6,10 @@ import { supabase } from "@/lib/supabaseClient";
 import { Plus, Trash, Image as ImageIcon, CloudUpload } from "react-bootstrap-icons";
 import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
+import { useRefresh } from "@/context/RefreshContext";
 
 const Banners = () => {
+    const { refreshKey } = useRefresh();
     const [banners, setBanners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -17,7 +19,7 @@ const Banners = () => {
 
     useEffect(() => {
         fetchBanners();
-    }, []);
+    }, [refreshKey]);
 
     const fetchBanners = async () => {
         try {

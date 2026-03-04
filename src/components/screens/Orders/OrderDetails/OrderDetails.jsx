@@ -12,6 +12,7 @@ import {
   Bicycle,
   XCircleFill,
   GeoAlt,
+  CurrencyRupee,
 } from "react-bootstrap-icons";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "react-toastify";
@@ -19,12 +20,33 @@ import orderService from "@/services/orderService";
 import workerService from "@/services/workerService";
 import CustomButton from "@/components/ui/custom_button/custom_button";
 import { Image } from "react-bootstrap";
+import paymentService from "@/services/paymentService";
 
 const OrderDetails = ({ order, onClose, onUpdate }) => {
   const [updating, setUpdating] = useState(false);
   const [showWorkerModal, setShowWorkerModal] = useState(false);
   const [workers, setWorkers] = useState([]);
   const [loadingWorkers, setLoadingWorkers] = useState(false);
+  const [payment, setPayment] = useState(null);
+  const [loadingPayment, setLoadingPayment] = useState(false);
+
+  useEffect(() => {
+    if (order?.id) {
+      fetchPayment();
+    }
+  }, [order?.id]);
+
+  const fetchPayment = async () => {
+    try {
+      setLoadingPayment(true);
+      const data = await paymentService.getPaymentByOrderId(order.id);
+      setPayment(data);
+    } catch (error) {
+      console.error("Failed to fetch payment", error);
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
 
   const evidence = order?.OrderEvidences || [];
   const beforeImages = evidence.filter(e => e.evidence_type === 'before');
@@ -106,14 +128,24 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     }
   };
 
-  const handleAssignWorker = (worker) => {
-    // We pass worker_id which triggers the backend logic to insert into worker_assignments
-    // We also pass the whole worker object as 'WorkerAssigned' just for local UI update helper (see updateOrderStatus)
-    updateOrderStatus("Worker Assigned", {
-      worker_id: worker.id,
-      WorkerAssigned: worker,
-    });
+  const [assigning, setAssigning] = useState(false);
+
+  const handleAssignWorker = async (worker) => {
+    setAssigning(true);
+    try {
+      await updateOrderStatus("Worker Assigned", {
+        worker_id: worker.id,
+        WorkerAssigned: worker,
+      });
+    } catch (error) {
+      console.log(error);
+      alert('Something went wrong while assigning worker')
+    } finally {
+      setAssigning(false)
+    }
   };
+
+
 
   // Helper: Calculate Price Breakdown
   const { subtotal, resourceCharges, totalAmount } = calculateOrderPrice(order);
@@ -341,10 +373,10 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
                 <div key={i} className={styles.item} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                     <div className={styles.itemInfo}>
-                      <span className={styles.name}>{item.name}</span>
+                      <span className={styles.name}>{item.name} {item.quantity > 1 ? `x ${item.quantity}` : ''}</span>
                       <span className={styles.type}>{item.item_type}</span>
                     </div>
-                    <span className={styles.price}>₹{item.ServiceDetail?.discount_price || item.price}</span>
+                    <span className={styles.price}>₹{(item.ServiceDetail?.discount_price || item.price) * (item.quantity || 1)}</span>
                   </div>
 
                   {item.item_type === "service" && (item.ServiceDetail?.water_required || item.ServiceDetail?.electricity_required) && (
@@ -427,6 +459,34 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
           </div>
         )}
 
+        {/* Payment Details Section */}
+        {payment && (
+          <div className={styles.section}>
+            <h3>
+              <CurrencyRupee /> Payment Details
+              <span className={`${styles.statusBadge} ${styles[payment.status?.toLowerCase()]}`} style={{ marginLeft: '12px', verticalAlign: 'middle' }}>
+                {payment.status}
+              </span>
+            </h3>
+            <div className={styles.card}>
+              <div className={styles.paymentItems}>
+                {payment.PaymentItems?.map((item, idx) => (
+                  <div key={idx} className={styles.row}>
+                    <span className={styles.label}>{item.name} x {item.quantity}</span>
+                    <span className={styles.value}>₹{parseFloat(item.price) * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.row} style={{ borderTop: '1px solid #eee', paddingTop: '12px', marginTop: '8px' }}>
+                <span className={styles.label} style={{ fontWeight: 'bold' }}>Total Paid</span>
+                <span className={`${styles.value} ${styles.successAmount}`}>
+                  ₹{payment.PaymentItems?.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Evidence Section */}
         {(beforeImages.length > 0 || afterImages.length > 0) && (
           <div className={styles.section}>
@@ -485,6 +545,13 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
               </button>
             </div>
             <div className={styles.workerList}>
+              {
+                assigning && (
+                  <div className={styles.assigning}>
+                    Assigning..
+                  </div>
+                )
+              }
               {loadingWorkers ? (
                 <div style={{ padding: 20, textAlign: "center" }}>
                   Loading workers...

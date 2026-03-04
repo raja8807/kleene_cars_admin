@@ -7,8 +7,10 @@ import { supabase } from "@/lib/supabaseClient";
 import { Search, Plus, Pencil, Trash, CloudUpload, PencilSquare } from "react-bootstrap-icons";
 import catalogService from "@/services/catalogService";
 import { toast } from "react-toastify";
+import { useRefresh } from "@/context/RefreshContext";
 
 const Products = () => {
+    const { refreshKey } = useRefresh();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
@@ -25,7 +27,7 @@ const Products = () => {
 
     useEffect(() => {
         fetchProducts();
-    }, []);
+    }, [refreshKey]);
 
     const fetchProducts = async () => {
         try {

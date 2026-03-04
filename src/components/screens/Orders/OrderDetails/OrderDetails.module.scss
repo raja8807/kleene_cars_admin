@@ -205,6 +205,40 @@
         justify-content: flex-end;
       }
     }
+
+    .paymentItems {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .successAmount {
+      color: $color_success;
+      font-weight: 700;
+    }
+  }
+
+  .statusBadge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    &.pending {
+      background-color: rgba($color_warning, 0.1);
+      color: $color_warning;
+    }
+
+    &.completed {
+      background-color: rgba($color_success, 0.1);
+      color: $color_success;
+    }
+
+    &.failed {
+      background-color: rgba($color_error, 0.1);
+      color: $color_error;
+    }
   }
 }
 
@@ -480,6 +514,21 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    position: relative;
+
+    .assigning {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(60, 60, 60, 0.5);
+      width: 100%;
+      height: 100%;
+      color: white;
+      margin-top: 2px;
+      z-index: 10;
+      @include flexCenter;
+    }
   }
 
   .workerItem {

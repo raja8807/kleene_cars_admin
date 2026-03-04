@@ -10,12 +10,14 @@ import {
 import { toast } from "react-toastify";
 import workerService from "@/services/workerService";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useRefresh } from "@/context/RefreshContext";
 
 const WorkerMapModal = dynamic(() => import("./WorkerMapModal/WorkerMapModal"), {
     ssr: false,
 });
 
 const WorkersScreen = () => {
+    const { refreshKey } = useRefresh();
     const { isAdmin } = useAuth();
     const [workers, setWorkers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -27,7 +29,7 @@ const WorkersScreen = () => {
 
     useEffect(() => {
         fetchWorkers();
-    }, []);
+    }, [refreshKey]);
 
     const fetchWorkers = async () => {
         try {
