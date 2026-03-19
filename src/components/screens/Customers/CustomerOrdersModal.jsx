@@ -48,7 +48,10 @@ const CustomerOrdersModal = ({ customer, onClose }) => {
         <div className={styles.modalOverlay} onClick={onClose}>
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.header}>
-                    <h2>Order History: {customer.full_name}</h2>
+                    <div>
+                        <h2>Order History: {customer.full_name}</h2>
+                        <small>Total orders: {orders?.totalItems}</small>
+                    </div>
                     <button className={styles.closeBtn} onClick={onClose}>
                         <X />
                     </button>
@@ -57,7 +60,7 @@ const CustomerOrdersModal = ({ customer, onClose }) => {
                 <div className={styles.content}>
                     {loading ? (
                         <div className={styles.loading}>Loading order history...</div>
-                    ) : orders.length > 0 ? (
+                    ) : orders?.data?.length > 0 ? (
                         <div className={styles.tableContainer}>
                             <table>
                                 <thead>
@@ -69,7 +72,7 @@ const CustomerOrdersModal = ({ customer, onClose }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {orders.map((order) => (
+                                    {orders.data.map((order) => (
                                         <tr
                                             key={order.id}
                                             className={styles.orderRow}

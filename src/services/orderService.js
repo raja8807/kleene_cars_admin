@@ -12,6 +12,16 @@ const orderService = {
     updateOrder: async (id, data) => {
         const response = await apiClient.put(`/orders/${id}`, data);
         return response.data;
+    },
+
+    assignWorker: async (id, data) => {
+        const response = await apiClient.put(`/orders/${id}/assign-worker`, data);
+        return response.data;
+    },
+
+    updateWorkerAssignmentStatus: async (id, data) => {
+        const response = await apiClient.put(`/orders/${id}/worker/status`, data);
+        return response.data;
     }
 };
 

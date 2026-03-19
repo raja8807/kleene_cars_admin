@@ -34,11 +34,17 @@ const CustomersScreen = () => {
             // Replaced fetch with customerService.getAllCustomers
             const data = await customerService.getAllCustomers(page);
 
+            console.log(data.data);
+
+
             setUsers(data.data || []);
+
             setPagination({
                 totalItems: data.totalItems,
                 totalPages: data.totalPages
             });
+
+
         } catch (err) {
             console.error(err);
             toast.error("Failed to load customers");
@@ -47,14 +53,20 @@ const CustomersScreen = () => {
         }
     };
 
-    const filteredUsers = users.filter(user =>
-        user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.phone?.includes(searchQuery)
-    );
+
+
+
+
+
+    const filteredUsers = users
+    // const filteredUsers = users.filter(user =>
+    //     user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //     user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //     user.phone?.includes(searchQuery)
+    // );
 
     const columns = [
-        { label: "Name", key: "full_name", render: (row) => row.full_name || "Unknown" },
+        { label: "Name", key: "full_name", render: (row) => row.full_name || "xx" },
         { label: "Email", key: "email" },
         { label: "Phone", key: "phone", render: (row) => row.phone || "-" },
         { label: "Joined", key: "created_at", render: (row) => new Date(row.created_at).toLocaleDateString() },

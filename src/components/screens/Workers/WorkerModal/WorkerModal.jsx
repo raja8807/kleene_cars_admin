@@ -14,7 +14,10 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
         experience: "",
         password: "",
         id_proof: null,
-        id_proof_url: ""
+        photo_file: null,
+        id_proof_url: "",
+        photo_url: "",
+        rating: "4.5"
     });
     const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -27,7 +30,8 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                 phone: worker.phone || "",
                 email: worker.email || "",
                 experience: worker.experience || "",
-                id_proof_url: worker.id_proof_url || ""
+                id_proof_url: worker.id_proof_url || "",
+                photo_url: worker.photo_url || ""
             });
         }
     }, [worker]);
@@ -36,16 +40,29 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
         const { name, value, files } = e.target;
         if (name === "id_proof") {
             setFormData(prev => ({ ...prev, [name]: files[0] }));
-        } else {
+        } else if (name === "photo_file") {
+            setFormData(prev => ({ ...prev, [name]: files[0] }));
+        }
+
+        else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
-    const handleIdProofUpload = async (file) => {
+    const handleIdProofUpload = async (file, type = "id") => {
         if (!file) return null;
 
         const fileExt = file.name.split('.').pop();
-        const fileName = `workers/id_proofs/${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+
+        let fileName = ""
+
+        if (type == "id") {
+            fileName = `workers/id_proofs/${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        } else {
+            fileName = `workers/id_proofs/${formData.name}-photo.${fileExt}`;
+        }
+
+
         const filePath = fileName;
 
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -75,8 +92,12 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                 setUploading(true);
 
                 let idProofUrl = null;
+                let photoUrl = null;
                 if (formData.id_proof) {
                     idProofUrl = await handleIdProofUpload(formData.id_proof);
+                }
+                if (formData.photo_file) {
+                    photoUrl = await handleIdProofUpload(formData.photo_file, "photo");
                 }
 
                 const payload = {
@@ -85,7 +106,9 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                     email: formData.email,
                     experience: formData.experience,
                     password: formData.password,
-                    id_proof_url: idProofUrl
+                    id_proof_url: idProofUrl,
+                    photo_url: photoUrl,
+                    rating: formData.rating
                 };
 
                 const data = await workerService.createWorker(payload);
@@ -166,7 +189,7 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                             <label>Password</label>
                             <input
                                 name="password"
-                                type="password"
+                                // type="password"
                                 value={formData.password}
                                 onChange={handleChange}
                                 placeholder="Set worker password"
@@ -175,6 +198,18 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                             />
                         </div>
                     )}
+                    <div className={styles.formGroup}>
+                        <label>Rating</label>
+                        <input
+                            name="rating"
+                            value={formData.rating}
+                            onChange={handleChange}
+                            placeholder="Set Wroker Rating"
+                            required
+
+                            disabled={loading}
+                        />
+                    </div>
 
                     {!worker && (
                         <div className={styles.imageUpload}>
@@ -196,11 +231,40 @@ const WorkerModal = ({ worker, onClose, onSave }) => {
                         </div>
                     )}
 
+                    {!worker && (
+                        <div className={styles.imageUpload}>
+                            <label>Photo</label>
+                            <div className={styles.preview}>
+                                {formData.photo_file ? (
+                                    <img src={URL.createObjectURL(formData.photo_file)} alt="Preview" />
+                                ) : (
+                                    <span><CloudUpload size={20} /><br />Upload ID Proof</span>
+                                )}
+                                <input
+                                    name="photo_file"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleChange}
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     {worker && formData.id_proof_url && (
                         <div className={styles.imageUpload}>
                             <label>ID Proof (Existing)</label>
                             <div className={styles.preview} onClick={() => window.open(formData.id_proof_url, '_blank')}>
                                 <img src={formData.id_proof_url} alt="ID Proof" title="Click to view full size" />
+                            </div>
+                        </div>
+                    )}
+
+                    {worker && formData.photo_url && (
+                        <div className={styles.imageUpload}>
+                            <label>Photo (Existing)</label>
+                            <div className={styles.preview} onClick={() => window.open(formData.photo_url, '_blank')}>
+                                <img src={formData.photo_url} alt="ID Proof" title="Click to view full size" />
                             </div>
                         </div>
                     )}

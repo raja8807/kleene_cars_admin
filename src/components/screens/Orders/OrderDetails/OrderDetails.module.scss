@@ -268,6 +268,12 @@
     .name {
       font-weight: 700;
       color: $color_text_primary;
+      display: flex;
+      justify-content: space-between;
+
+      >div {
+        font-size: 14px;
+      }
     }
 
     .meta {

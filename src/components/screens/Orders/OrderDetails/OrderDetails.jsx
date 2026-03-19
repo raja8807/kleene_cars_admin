@@ -13,6 +13,9 @@ import {
   XCircleFill,
   GeoAlt,
   CurrencyRupee,
+  Eye,
+  ChevronDown,
+  ChevronUp,
 } from "react-bootstrap-icons";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "react-toastify";
@@ -30,6 +33,8 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   const [payment, setPayment] = useState(null);
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [assigning, setAssigning] = useState(false);
+
+  const [showBreakDown, setShowBreakDown] = useState(false);
 
   useEffect(() => {
     if (order?.id) {
@@ -131,10 +136,31 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
   const handleAssignWorker = async (worker) => {
     setAssigning(true);
     try {
-      await updateOrderStatus("Worker Assigned", {
+      const res = await orderService.assignWorker(order?.id, {
+        worker_id: worker.id,
+      });
+
+
+
+      toast.success(`Order Updated`);
+      // Merge local update for immediate UI reflection
+      onUpdate(order?.id, "Confirmed", {
         worker_id: worker.id,
         WorkerAssigned: worker,
       });
+
+      // Optionally update local order object if onUpdate doesn't trigger full re-fetch of Parent
+      order.status = "Confirmed";
+      order.WorkerAssigned = worker;
+
+      order.WorkerAssignments = [
+        {
+          status: 'Assigned',
+          Worker: worker
+        }
+      ];
+      setShowWorkerModal(false);
+
     } catch (error) {
       console.log(error);
       alert("Something went wrong while assigning worker");
@@ -169,6 +195,31 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
     }
 
     if (order?.status === "Confirmed") {
+
+      if (order?.WorkerAssignments) {
+        const isAccepted = order.WorkerAssignments.some(wa => wa.status === "Accepted")
+
+        const isAssigned = order.WorkerAssignments.some(wa => wa.status === "Assigned")
+
+        if (isAccepted) {
+          return (
+            <div className={styles.actions}>
+              <button
+                className={styles.assignBtn}
+                onClick={() => updateOrderStatus("Worker Assigned")}
+                disabled={updating}
+              >
+                <PersonBadge />Confirm Worker Assigned
+              </button>
+            </div>
+          )
+        }
+
+        if (isAssigned) {
+          return null
+        }
+      }
+
       return (
         <div className={styles.actions}>
           <button
@@ -180,6 +231,7 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
           </button>
         </div>
       );
+
     }
 
     if (
@@ -471,24 +523,59 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
                 Change
               </button>
             </h3>
-            <div className={styles.card}>
-              <div className={styles.workerCard}>
-                <div className={styles.avatar}>
-                  <Person />
-                </div>
-                <div className={styles.info}>
-                  <span className={styles.name}>
-                    {order?.WorkerAssigned?.name ||
-                      order?.worker?.name ||
-                      "Assigned Worker"}
-                  </span>
-                  <div className={styles.meta}>
-                    <span>⭐ {order?.WorkerAssigned?.rating || "N/A"}</span>
-                    <span>• {order?.WorkerAssigned?.phone || "N/A"}</span>
+            {
+              order.WorkerAssignments.map((WorkerAssignment) => {
+
+                const { Worker } = WorkerAssignment;
+                const { status } = WorkerAssignment;
+
+                const getStatusColor = () => {
+                  if (status === "Declined") {
+                    return "#FF754C"
+                  } else if (status === "Accepted") {
+                    return "#4CE364"
+                  }
+                  return "#FFCD1A"
+                }
+
+
+
+                return <div className={styles.card}
+                  key={WorkerAssignment?.id}
+                >
+                  <div className={styles.workerCard}>
+                    <div className={styles.avatar}>
+                      {
+                        Worker.photo_url ? <Image fluid
+                          style={{
+                            borderRadius: '50%'
+
+
+                          }}
+                          src={Worker.photo_url} /> : <Person />
+                      }
+                    </div>
+                    <div className={styles.info}>
+                      <div className={styles.name}>
+                        <span>{Worker.name}</span>
+                        <div
+                          style={{
+                            color: getStatusColor()
+                          }}
+                        >
+                          {WorkerAssignment.status}
+                        </div>
+                      </div>
+                      <div className={styles.meta}>
+                        <span>⭐ {Worker?.rating || "N/A"}</span>
+                        <span>• {Worker?.phone || "N/A"}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              })
+            }
+
           </div>
         )}
 
@@ -554,21 +641,36 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
 
       {/* Footer Actions */}
       <div className={styles.footer}>
-        <div className={styles.billBreakdown}>
-          <div className={styles.billRow}>
-            <span>Items Subtotal</span>
-            <span>₹{subtotal}</span>
-          </div>
-          {resourceCharges > 0 && (
+        {
+          showBreakDown && <div className={styles.billBreakdown}>
             <div className={styles.billRow}>
-              <span>Resource Charges</span>
-              <span className={styles.charge}>+₹{resourceCharges}</span>
+              <span>Items Subtotal</span>
+              <span>₹{subtotal}</span>
             </div>
-          )}
-        </div>
+            {resourceCharges > 0 && (
+              <div className={styles.billRow}>
+                <span>Resource Charges</span>
+                <span className={styles.charge}>+₹{resourceCharges}</span>
+              </div>
+            )}
+          </div>
+        }
         <div className={styles.totalRow}>
+
           <span>Total Amount</span>
-          <strong>₹{totalAmount}</strong>
+
+
+          <div onClick={() => setShowBreakDown(!showBreakDown)}
+            style={{
+              cursor: "pointer"
+            }}
+          >
+            <strong>₹{totalAmount}</strong>
+            &nbsp;
+            {
+              showBreakDown ? <ChevronDown /> : <ChevronUp />
+            }
+          </div>
         </div>
         {renderActionButtons()}
       </div>
@@ -624,7 +726,15 @@ const OrderDetails = ({ order, onClose, onUpdate }) => {
                           opacity: worker.is_busy ? 0.5 : 1,
                         }}
                       >
-                        <Person />
+                        {
+                          worker.photo_url ? <Image fluid
+                            style={{
+                              borderRadius: '50%'
+
+
+                            }}
+                            src={worker.photo_url} /> : <Person />
+                        }
                       </div>
                       <div style={{ opacity: worker.is_busy ? 0.5 : 1 }}>
                         <div className={styles.wName}>
