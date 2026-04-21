@@ -49,6 +49,109 @@
             }
         }
 
+        .notificationWrapper {
+            position: relative;
+            display: flex;
+
+            .badge {
+                position: absolute;
+                top: -2px;
+                right: -2px;
+                background-color: $color_primary;
+                color: white;
+                font-size: 9px;
+                font-weight: 700;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                @include flexCenter;
+                border: 2px solid $color_bg_secondary;
+            }
+
+            .notificationsDropdown {
+                position: absolute;
+                top: calc(100% + 10px);
+                right: 0;
+                width: 300px;
+                background-color: $color_bg_secondary;
+                border: 1px solid $color_divider;
+                border-radius: 10px;
+                box-shadow: $shadow-lg;
+                overflow: hidden;
+                animation: fadeInDown 0.2s ease-out;
+
+                .dropdownHeader {
+                    padding: 12px 16px;
+                    border-bottom: 1px solid $color_divider;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: $color_text_primary;
+                }
+
+                .dropdownContent {
+                    max-height: 400px;
+                    overflow-y: auto;
+
+                    .emptyState {
+                        padding: 30px 16px;
+                        text-align: center;
+                        font-size: 13px;
+                        color: $color_text_tertiary;
+                    }
+
+                    .notificationItem {
+                        padding: 12px 16px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 12px;
+                        border-bottom: 1px solid $color_divider;
+                        transition: $transition-smooth;
+                        cursor: pointer;
+
+                        &:hover {
+                            background-color: $color_bg_tertiary;
+                        }
+
+                        &:last-child {
+                            border-bottom: none;
+                        }
+
+                        .notifInfo {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 2px;
+                            flex: 1;
+
+                            .notifTitle {
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: $color_text_primary;
+                            }
+
+                            .notifBody {
+                                font-size: 12px;
+                                color: $color_text_secondary;
+                                line-height: 1.4;
+                            }
+
+                            .notifTime {
+                                font-size: 10px;
+                                color: $color_text_tertiary;
+                                margin-top: 4px;
+                            }
+                        }
+
+                        .unreadDot {
+                            font-size: 8px;
+                            color: $color_primary;
+                            margin-top: 4px;
+                        }
+                    }
+                }
+            }
+        }
+
         .profile {
             display: flex;
             align-items: center;

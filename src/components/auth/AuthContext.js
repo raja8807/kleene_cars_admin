@@ -60,6 +60,9 @@ export const AuthProvider = ({ children }) => {
             // const { data: { session } } = await supabase.auth.getSession(); // This line might be removed if authService handles tokens
             const profile = await authService.getProfile();
 
+            console.log(profile);
+
+
             // Adapt if needed, assuming service returns data directly
             if (profile) {
                 setRole(profile.role || 'customer'); // Assuming profile object has a 'role' property

@@ -16,6 +16,7 @@ import {
 import { toast } from "react-toastify";
 import orderService from "@/services/orderService";
 import { useRefresh } from "@/context/RefreshContext";
+import { supabase } from "@/lib/supabaseClient";
 
 
 
@@ -35,6 +36,20 @@ const OrdersScreen = () => {
   useEffect(() => {
     fetchOrders(currentPage, filter);
   }, [currentPage, filter, refreshKey]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime_orders_table')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+        console.log('Order table change detected:', payload);
+        fetchOrders(currentPage, filter);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentPage, filter]);
 
   const onFilterChange = (newFilter) => {
     setFilter(newFilter);
