@@ -177,7 +177,8 @@ const Services = () => {
         },
         { label: "Name", key: "name" },
         { label: "Category", key: "category", render: (row) => row.categories?.name || "-" },
-        { label: "Price", key: "price", render: (row) => `₹${row.price} ` },
+        { label: "Actual Price", key: "price", render: (row) => `₹${row.price} ` },
+        { label: "Discount Price", key: "price", render: (row) => `₹${row.discount_price} ` },
         {
             label: "Actions", key: "actions", render: (row) => (
                 <div style={{ display: 'flex', gap: 10 }}>
@@ -265,8 +266,9 @@ const Services = () => {
                             required
                         />
                         <CustomInput
-                            label="Discount Price (Optional)"
+                            label="Discount Price"
                             type="number"
+                            required
                             value={formData.discount_price}
                             onChange={(e) => setFormData({ ...formData, discount_price: e.target.value })}
                         />
